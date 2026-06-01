@@ -229,7 +229,7 @@ input[type=text]:focus { border-color: rgba(201,162,39,.5); }
 
   <div class="section-label">Archetype counter flowchart</div>
   <div class="flow-canvas-wrap">
-    <svg id="counter-flow" viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" width="700" height="360"></svg>
+    <svg id="counter-flow" viewBox="0 0 780 460" xmlns="http://www.w3.org/2000/svg" width="780" height="460" style="max-width:100%"></svg>
   </div>
 
   <div class="section-label">Counter matrix</div>
@@ -492,6 +492,8 @@ function renderArchNodes() {
 function highlightArch(id) {
   highlightedArch = highlightedArch === id ? null : id;
   renderArchNodes();
+  if (highlightedArch) applyFlowHighlight(highlightedArch);
+  else renderCounterFlow();
 }
 
 function renderArchDetailCards() {
@@ -506,43 +508,156 @@ function renderArchDetailCards() {
 
 function renderCounterFlow() {
   const svg = document.getElementById('counter-flow');
-  const W=700, H=360, cx=W/2, cy=H/2, rx=220, ry=130;
-  const n = ARCHETYPES.length;
-  const positions = ARCHETYPES.map((a,i) => {
-    const angle = (i / n) * 2 * Math.PI - Math.PI/2;
-    return { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle), ...a };
-  });
+  const W = 780, H = 460;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
 
-  let arrowDefs = `<defs>
-    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#34d399"/>
+  // Hand-placed positions for clean layout — two rings, nothing crammed
+  const POS = {
+    engage:    { x: 390, y:  70 },
+    poke:      { x: 680, y: 185 },
+    pick:      { x: 590, y: 390 },
+    protect:   { x: 190, y: 390 },
+    split:     { x: 100, y: 185 },
+    dive:      { x: 265, y: 130 },
+    sustain:   { x: 515, y: 130 },
+    teamfight: { x: 390, y: 270 },
+  };
+
+  const NW = 88, NH = 44; // node width / height
+
+  // Build curved path between two nodes with slight arc
+  function curvePath(from, to, offset=0) {
+    const fx = POS[from].x, fy = POS[from].y;
+    const tx = POS[to].x,   ty = POS[to].y;
+    const dx = tx - fx, dy = ty - fy;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    // push start/end to node edge
+    const pad = 26;
+    const sx = fx + dx/len * pad, sy = fy + dy/len * pad;
+    const ex = tx - dx/len * pad, ey = ty - dy/len * pad;
+    // perpendicular offset for curve
+    const px = -dy/len * offset, py = dx/len * offset;
+    const mx = (sx+ex)/2 + px, my = (sy+ey)/2 + py;
+    return `M${sx.toFixed(1)},${sy.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`;
+  }
+
+  const defs = `<defs>
+    <marker id="mh-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 Z" fill="#34d399"/>
     </marker>
-    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+    <marker id="mh-dim" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 Z" fill="#34d39944"/>
     </marker>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>`;
 
-  let lines = '';
-  positions.forEach((from, fi) => {
-    ARCHETYPES[fi].beats.forEach(beatId => {
-      const to = positions.find(p => p.id === beatId);
-      if (!to) return;
-      const dx = to.x - from.x, dy = to.y - from.y;
-      const len = Math.sqrt(dx*dx+dy*dy);
-      const ex = from.x + dx/len*42, ey = from.y + dy/len*26;
-      const ex2 = to.x - dx/len*42, ey2 = to.y - dy/len*26;
-      lines += `<line x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${ex2.toFixed(1)}" y2="${ey2.toFixed(1)}" stroke="#34d399" stroke-width="1.2" stroke-opacity="0.4" marker-end="url(#arr-green)"/>`;
+  // Draw all "beats" edges
+  let edges = '';
+  ARCHETYPES.forEach(a => {
+    a.beats.forEach((bid, bi) => {
+      if (!POS[bid]) return;
+      const offset = bi === 0 ? 18 : -18;
+      edges += `<path d="${curvePath(a.id, bid, offset)}" fill="none" stroke="#34d399" stroke-width="1.5" stroke-opacity="0.35" marker-end="url(#mh-dim)"/>`;
     });
   });
 
-  let nodes = positions.map(p => `
-    <g>
-      <ellipse cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" rx="38" ry="22" fill="#0c1526" stroke="${p.color}" stroke-width="1.5"/>
-      <text x="${p.x.toFixed(1)}" y="${(p.y-4).toFixed(1)}" text-anchor="middle" font-size="14" fill="${p.color}">${p.icon}</text>
-      <text x="${p.x.toFixed(1)}" y="${(p.y+10).toFixed(1)}" text-anchor="middle" font-size="8" fill="${p.color}" font-weight="700">${p.name.split('/')[0].trim()}</text>
-    </g>`).join('');
+  // Draw nodes
+  let nodes = ARCHETYPES.map(a => {
+    const {x, y} = POS[a.id];
+    const label = a.name.replace(' / ', '/').split('/')[0].trim();
+    const shortName = label.length > 10 ? label.slice(0,10)+'…' : label;
+    return `<g class="flow-node" data-id="${a.id}" onclick="highlightArch('${a.id}')" style="cursor:pointer">
+      <rect x="${(x-NW/2).toFixed(1)}" y="${(y-NH/2).toFixed(1)}" width="${NW}" height="${NH}" rx="10"
+        fill="#0c1526" stroke="${a.color}" stroke-width="1.8" id="flow-rect-${a.id}"/>
+      <text x="${x}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-size="15" fill="${a.color}">${a.icon}</text>
+      <text x="${x}" y="${(y+12).toFixed(1)}" text-anchor="middle" font-size="10" fill="${a.color}" font-weight="700" font-family="Segoe UI,system-ui,sans-serif">${shortName}</text>
+    </g>`;
+  }).join('');
 
-  svg.innerHTML = arrowDefs + `<text x="${cx}" y="${cy}" text-anchor="middle" font-size="10" fill="#475569">green arrows = beats</text>` + lines + nodes;
+  // Legend
+  const legend = `
+    <g transform="translate(16,${H-36})">
+      <line x1="0" y1="8" x2="28" y2="8" stroke="#34d399" stroke-width="1.5" marker-end="url(#mh-green)"/>
+      <text x="34" y="12" font-size="10" fill="#94a3b8" font-family="Segoe UI,system-ui,sans-serif">arrow = beats / strong against</text>
+      <text x="34" y="26" font-size="10" fill="#94a3b8" font-family="Segoe UI,system-ui,sans-serif">click any node to highlight its matchups</text>
+    </g>`;
+
+  svg.innerHTML = defs + edges + nodes + legend;
+
+  // Re-apply highlight if one is active
+  if (highlightedArch) applyFlowHighlight(highlightedArch);
+}
+
+function applyFlowHighlight(activeId) {
+  const svg = document.getElementById('counter-flow');
+  if (!svg) return;
+  const active = ARCHETYPES.find(a => a.id === activeId);
+  if (!active) return;
+
+  // Dim all rects first
+  ARCHETYPES.forEach(a => {
+    const rect = svg.querySelector(`#flow-rect-${a.id}`);
+    if (!rect) return;
+    const isActive   = a.id === activeId;
+    const isBeaten   = active.beats.includes(a.id);
+    const isBeatenBy = active.loses.includes(a.id);
+    if (isActive) {
+      rect.setAttribute('stroke-width','2.5');
+      rect.setAttribute('filter','url(#glow)');
+      rect.setAttribute('fill','#0c1526');
+    } else if (isBeaten) {
+      rect.setAttribute('stroke','#34d399');
+      rect.setAttribute('stroke-width','2');
+      rect.setAttribute('fill','#34d39910');
+      rect.removeAttribute('filter');
+    } else if (isBeatenBy) {
+      rect.setAttribute('stroke','#ef4444');
+      rect.setAttribute('stroke-width','2');
+      rect.setAttribute('fill','#ef444410');
+      rect.removeAttribute('filter');
+    } else {
+      rect.setAttribute('stroke-opacity','0.25');
+      rect.setAttribute('fill','#0c152688');
+      rect.removeAttribute('filter');
+    }
+  });
+
+  // Highlight active edges
+  svg.querySelectorAll('path[fill="none"]').forEach(p => p.remove());
+  const POS_REF = {
+    engage:{x:390,y:70},poke:{x:680,y:185},pick:{x:590,y:390},
+    protect:{x:190,y:390},split:{x:100,y:185},dive:{x:265,y:130},
+    sustain:{x:515,y:130},teamfight:{x:390,y:270}
+  };
+  function cp(from, to, offset=0) {
+    const fx=POS_REF[from].x,fy=POS_REF[from].y,tx=POS_REF[to].x,ty=POS_REF[to].y;
+    const dx=tx-fx,dy=ty-fy,len=Math.sqrt(dx*dx+dy*dy),pad=26;
+    const sx=fx+dx/len*pad,sy=fy+dy/len*pad,ex=tx-dx/len*pad,ey=ty-dy/len*pad;
+    const px=-dy/len*offset,py=dx/len*offset;
+    const mx=(sx+ex)/2+px,my=(sy+ey)/2+py;
+    return `M${sx.toFixed(1)},${sy.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`;
+  }
+  const nodesEl = svg.querySelectorAll('.flow-node');
+  const firstNode = nodesEl[0];
+  ARCHETYPES.forEach(a => {
+    a.beats.forEach((bid,bi) => {
+      if (!POS_REF[bid]) return;
+      const offset = bi===0?18:-18;
+      const isActiveEdge = a.id===activeId;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d', cp(a.id,bid,offset));
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke', isActiveEdge?'#34d399':'#34d39918');
+      path.setAttribute('stroke-width', isActiveEdge?'2':'1');
+      path.setAttribute('marker-end', isActiveEdge?'url(#mh-green)':'url(#mh-dim)');
+      svg.insertBefore(path, firstNode);
+    });
+  });
 }
 
 function renderCounterMatrix() {
