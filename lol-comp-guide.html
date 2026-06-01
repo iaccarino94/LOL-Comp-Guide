@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoL Team Comp Strategy Guide</title>
+<style>
+:root {
+  --bg: #060d1a;
+  --bg2: #0c1526;
+  --bg3: #111e35;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #475569;
+  --gold: #c9a227;
+  --gold2: #e8d48b;
+  --blue: #4a9eff;
+  --red: #ef4444;
+  --teal: #34d399;
+  --purple: #a855f7;
+  --amber: #f59e0b;
+  --coral: #f97316;
+  --green: #84cc16;
+  --pink: #ec4899;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+a { color: var(--gold); }
+
+/* HEADER */
+.header { text-align: center; padding: 32px 20px 20px; border-bottom: 1px solid var(--border); }
+.header-eyebrow { font-size: 10px; letter-spacing: .3em; color: var(--gold); font-weight: 700; margin-bottom: 8px; }
+.header h1 { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--gold), var(--gold2), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -.02em; }
+.header p { font-size: 13px; color: var(--text3); margin-top: 6px; }
+
+/* NAV */
+.nav { display: flex; gap: 2px; overflow-x: auto; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg2); position: sticky; top: 0; z-index: 50; flex-wrap: nowrap; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav button { padding: 12px 16px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: var(--text2); border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; font-family: inherit; }
+.nav button.active { color: var(--text); border-bottom-color: var(--gold); }
+.nav button:hover { color: var(--text); }
+
+/* LAYOUT */
+.tab { display: none; padding: 24px 20px; max-width: 1000px; margin: 0 auto; }
+.tab.active { display: block; }
+
+/* TYPOGRAPHY */
+h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+p { font-size: 13px; line-height: 1.7; color: var(--text2); }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: .15em; color: var(--text3); margin-bottom: 12px; text-transform: uppercase; }
+.intro-blurb { border-left: 2px solid var(--gold); padding: 10px 14px; margin-bottom: 24px; background: rgba(201,162,39,.06); border-radius: 0 8px 8px 0; }
+.intro-blurb p { font-size: 13px; color: var(--text2); }
+
+/* CARDS */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 12px; margin-bottom: 20px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 10px; margin-bottom: 20px; }
+.arch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; margin-bottom: 24px; }
+.arch-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.arch-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.arch-desc { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+.arch-eg { font-size: 11px; color: var(--text3); }
+.arch-eg span { color: var(--text2); }
+
+/* TAGS / CHIPS */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px; }
+.t-blue   { background: rgba(74,158,255,.15); color: #7bb8ff; border: 1px solid rgba(74,158,255,.25); }
+.t-red    { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.25); }
+.t-amber  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.25); }
+.t-teal   { background: rgba(52,211,153,.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.t-purple { background: rgba(168,85,247,.15); color: #c084fc; border: 1px solid rgba(168,85,247,.25); }
+.t-coral  { background: rgba(249,115,22,.15); color: #fb923c; border: 1px solid rgba(249,115,22,.25); }
+.t-green  { background: rgba(132,204,22,.15); color: #a3e635; border: 1px solid rgba(132,204,22,.25); }
+.t-gray   { background: rgba(148,163,184,.1); color: var(--text2); border: 1px solid rgba(148,163,184,.2); }
+.t-gold   { background: rgba(201,162,39,.15); color: var(--gold2); border: 1px solid rgba(201,162,39,.25); }
+
+.spike-chip { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.sc-early    { background: rgba(251,146,60,.18); color: #fb923c; }
+.sc-earlymid { background: rgba(245,158,11,.18); color: #fbbf24; }
+.sc-mid      { background: rgba(74,158,255,.18);  color: #7bb8ff; }
+.sc-midlate  { background: rgba(168,85,247,.18);  color: #c084fc; }
+.sc-late     { background: rgba(52,211,153,.18);  color: #6ee7b7; }
+.sc-hybrid   { background: rgba(148,163,184,.15); color: var(--text2); }
+
+/* TABLES */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
+.data-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border2); font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; }
+.data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; font-size: 13px; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td strong { color: var(--text); }
+
+/* ROSTER */
+input[type=text] { width: 100%; padding: 9px 14px; border: 1px solid var(--border2); border-radius: 8px; background: var(--bg3); color: var(--text); font-size: 13px; outline: none; font-family: inherit; margin-bottom: 12px; }
+input[type=text]:focus { border-color: rgba(201,162,39,.5); }
+.filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; }
+.filter-lbl { font-size: 11px; color: var(--text3); }
+.filter-btn { padding: 4px 10px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; background: transparent; color: var(--text2); font-family: inherit; transition: all .15s; }
+.filter-btn.on { background: rgba(201,162,39,.15); color: var(--gold2); border-color: rgba(201,162,39,.4); }
+.result-count { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+.champ-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px,1fr)); gap: 8px; max-height: 540px; overflow-y: auto; margin-bottom: 12px; }
+.champ-grid::-webkit-scrollbar { width: 4px; }
+.champ-grid::-webkit-scrollbar-track { background: transparent; }
+.champ-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.champ-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color .15s; }
+.champ-card:hover { border-color: var(--border2); }
+.champ-card.selected { border-color: rgba(201,162,39,.6); background: rgba(201,162,39,.07); }
+.champ-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.champ-meta { font-size: 11px; color: var(--text3); }
+.champ-detail { background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 18px; display: none; margin-bottom: 16px; }
+.champ-detail.visible { display: block; }
+.detail-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; font-size: 13px; }
+.detail-lbl { color: var(--text3); min-width: 80px; flex-shrink: 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding-top: 2px; }
+
+/* ARCHETYPE COUNTER VISUAL */
+.counter-vis { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 8px; margin-bottom: 24px; }
+.arch-node { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; position: relative; cursor: default; transition: border-color .2s; }
+.arch-node:hover { border-color: var(--border2); }
+.arch-node-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.arch-node-beats { font-size: 10px; color: var(--teal); margin-bottom: 2px; }
+.arch-node-loses { font-size: 10px; color: var(--red); }
+.arch-node-icon { font-size: 22px; margin-bottom: 6px; }
+
+/* COMP BUILDER */
+.builder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media(max-width:600px){ .builder-grid { grid-template-columns: 1fr; } }
+.team-slot { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: border-color .15s; min-height: 46px; }
+.team-slot:hover { border-color: var(--border2); }
+.slot-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.slot-name { font-size: 13px; font-weight: 600; flex: 1; }
+.slot-meta { font-size: 11px; color: var(--text3); }
+.slot-remove { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; }
+.slot-remove:hover { color: var(--red); }
+.picker-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; align-items: center; justify-content: center; }
+.picker-overlay.open { display: flex; }
+.picker-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: 12px; padding: 20px; width: 480px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; }
+.picker-box input { margin-bottom: 8px; }
+.picker-list { overflow-y: auto; flex: 1; }
+.picker-item { padding: 7px 10px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.picker-item:hover { background: var(--bg3); }
+.picker-item-class { font-size: 11px; font-weight: 600; width: 100px; flex-shrink: 0; }
+.analysis-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+.analysis-section { margin-bottom: 16px; }
+.analysis-section:last-child { margin-bottom: 0; }
+.bar-wrap { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+.insight-item { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 13px; line-height: 1.5; }
+.insight-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.builder-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.builder-tab { padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; background: transparent; color: var(--text2); font-family: inherit; transition: all .15s; }
+.builder-tab.on { background: rgba(201,162,39,.15); color: var(--gold2); border-color: rgba(201,162,39,.4); }
+
+/* MATCHUP FLOW VISUAL */
+.flow-canvas-wrap { width: 100%; overflow-x: auto; margin-bottom: 24px; }
+.flow-canvas-wrap svg { display: block; min-width: 600px; }
+
+/* TIMING BAR CHART */
+.timing-bars { margin-bottom: 24px; }
+.t-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.t-bar-label { width: 88px; flex-shrink: 0; }
+.t-bar-bg { flex: 1; background: var(--bg3); border-radius: 4px; height: 24px; overflow: hidden; }
+.t-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; transition: width .4s; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">SUMMONER'S RIFT INTELLIGENCE</div>
+  <h1>Team Comp Strategy Guide</h1>
+  <p>168 champions · conceptual reference · current as of Season 2025</p>
+</div>
+
+<nav class="nav" id="nav">
+  <button class="active" onclick="switchTab('overview')">Overview</button>
+  <button onclick="switchTab('archetypes')">Comp archetypes</button>
+  <button onclick="switchTab('classes')">Class breakdown</button>
+  <button onclick="switchTab('timing')">Power timing</button>
+  <button onclick="switchTab('counters')">Matchup logic</button>
+  <button onclick="switchTab('builder')">Comp builder</button>
+  <button onclick="switchTab('roster')">Champion roster</button>
+</nav>
+
+<!-- ══════════ OVERVIEW ══════════ -->
+<div id="tab-overview" class="tab active">
+  <div class="intro-blurb">
+    <p>A team composition isn't just five picks — it's a <strong style="color:var(--text)">strategic identity</strong>. Every comp has a win condition, a power window, and a set of things it wants to do before or after the enemy. Understanding those three things lets you make better picks, read matchups, and adapt mid-game.</p>
+  </div>
+  <div class="section-label">The three questions every comp must answer</div>
+  <div class="grid3">
+    <div class="card"><h3 style="color:var(--gold)">How do we start fights?</h3><p style="margin-top:6px">Engage, pick, dive, or poke the enemy into a bad fight. Teams with no initiation tool must rely on the enemy making a mistake.</p></div>
+    <div class="card"><h3 style="color:var(--gold)">When is our window?</h3><p style="margin-top:6px">Every comp has a phase — early, mid, or late — where it peaks. Play around that window and close out the enemy's.</p></div>
+    <div class="card"><h3 style="color:var(--gold)">What do we target?</h3><p style="margin-top:6px">Carries, tanks, or objectives. Some comps blow up one target; others apply AoE pressure. Know which, and position to execute it.</p></div>
+  </div>
+  <div class="section-label">Range profile matters</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Melee-heavy comps</h3>
+      <p style="margin-top:6px">More melee = harder to kite. Strong in poke matchups if they can close the gap with engage. Vulnerable to long-range poke and disengage. Require good engage tools or waveclear to survive the poke phase.</p>
+      <div style="margin-top:10px"><span class="tag t-coral">Juggernaut</span><span class="tag t-coral">Diver</span><span class="tag t-red">Vanguard</span><span class="tag t-amber">Skirmisher</span></div>
+    </div>
+    <div class="card">
+      <h3>Ranged-heavy comps</h3>
+      <p style="margin-top:6px">More range = better poke and disengage. Thrive against frontline-heavy comps that can't close distance. Vulnerable to hard engage and assassins who bypass the frontline entirely.</p>
+      <div style="margin-top:10px"><span class="tag t-blue">Marksman</span><span class="tag t-blue">Artillery</span><span class="tag t-teal">Enchanter</span><span class="tag t-purple">Burst mage</span></div>
+    </div>
+  </div>
+  <div class="section-label">Internal synergy types</div>
+  <div class="arch-grid">
+    <div class="arch-card"><div class="arch-title">Damage + access</div><div class="arch-desc">A tank or diver creates the opening; the carry executes. Classic: Malphite ult into ADC cleanup.</div></div>
+    <div class="arch-card"><div class="arch-title">Poke + siege</div><div class="arch-desc">Chip the enemy below fight threshold, then take objectives while they recall.</div></div>
+    <div class="arch-card"><div class="arch-title">CC chains</div><div class="arch-desc">Stacking crowd control locks a target long enough to delete them regardless of damage type.</div></div>
+    <div class="arch-card"><div class="arch-title">Protect the carry</div><div class="arch-desc">Stack peel around a hypercarry. Win condition: reach late game with carry alive and full items.</div></div>
+    <div class="arch-card"><div class="arch-title">Reset chains</div><div class="arch-desc">Champions who reset on kills (Katarina, Jinx passive) snowball cleans into unstoppable momentum.</div></div>
+    <div class="arch-card"><div class="arch-title">Deny their win-con</div><div class="arch-desc">Counterpick mechanics: Vex vs. dashes, Rammus vs. AD, Poppy vs. engage, Mordekaiser vs. split.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ ARCHETYPES ══════════ -->
+<div id="tab-archetypes" class="tab">
+  <div class="intro-blurb"><p>Comp archetypes describe <em>how</em> a team wants to win a fight. A comp can blend two archetypes (poke-engage, dive-split) but should have a clear primary identity to avoid confusion about win conditions.</p></div>
+
+  <div class="section-label">Primary comp identities — click any node to highlight counters</div>
+  <div class="counter-vis" id="arch-nodes"></div>
+
+  <div class="section-label">Detailed archetype breakdown</div>
+  <div class="arch-grid" id="arch-detail-cards"></div>
+
+  <div class="section-label">Archetype counter flowchart</div>
+  <div class="flow-canvas-wrap">
+    <svg id="counter-flow" viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" width="700" height="360"></svg>
+  </div>
+
+  <div class="section-label">Counter matrix</div>
+  <table class="data-table">
+    <thead><tr><th>Archetype</th><th>Strong vs.</th><th>Weak vs.</th><th>Core logic</th></tr></thead>
+    <tbody id="counter-matrix-body"></tbody>
+  </table>
+</div>
+
+<!-- ══════════ CLASSES ══════════ -->
+<div id="tab-classes" class="tab">
+  <div class="intro-blurb"><p>Riot's class system organizes champions by <em>how they fight</em>. Understanding each class's purpose helps you build comps that are internally consistent — you know what every player is supposed to do when a fight starts.</p></div>
+  <div id="class-cards"></div>
+</div>
+
+<!-- ══════════ TIMING ══════════ -->
+<div id="tab-timing" class="tab">
+  <div class="intro-blurb"><p><strong style="color:var(--text)">Power timing is the most misunderstood concept in solo queue.</strong> Every champion has a phase window. Play inside your window and you win. Play outside it and you bleed.</p></div>
+  <div class="section-label">Timing labels</div>
+  <table class="data-table" style="margin-bottom:20px">
+    <thead><tr><th>Label</th><th>Window</th><th>Default read</th></tr></thead>
+    <tbody>
+      <tr><td><span class="spike-chip sc-early">Early</span></td><td>Levels 1–6, first clear, lane phase</td><td>Needs tempo. Punish scalers, invade/gank, avoid slow games.</td></tr>
+      <tr><td><span class="spike-chip sc-earlymid">Early-Mid</span></td><td>First item + level 6–11</td><td>Must convert early pressure into objectives.</td></tr>
+      <tr><td><span class="spike-chip sc-mid">Mid</span></td><td>Level 6 and 1–2 items</td><td>Force objectives and skirmishes when ult/items are up.</td></tr>
+      <tr><td><span class="spike-chip sc-midlate">Mid-Late</span></td><td>Needs scaling, not a pure 35-min champ</td><td>Survive early, then fight around 2–3 item windows.</td></tr>
+      <tr><td><span class="spike-chip sc-late">Late</span></td><td>3+ items, levels, or stacks</td><td>Do not force early. Farm, protect, and stall.</td></tr>
+      <tr><td><span class="spike-chip sc-hybrid">Hybrid</span></td><td>Peak changes by build / matchup</td><td>Read item build and comp identity before deciding.</td></tr>
+    </tbody>
+  </table>
+  <div class="section-label">Distribution across 168 champions</div>
+  <div class="timing-bars" id="timing-bars"></div>
+  <div class="section-label">Key principles</div>
+  <div class="arch-grid">
+    <div class="arch-card"><div class="arch-title">If your window is earlier</div><div class="arch-desc">Force fights. Deny farm. Take every objective. Do not let the game go late — you are not the same champion at 40 minutes as at 20.</div></div>
+    <div class="arch-card"><div class="arch-title">If your window is later</div><div class="arch-desc">Survive. Farm. Identify which laners can hold a lead long enough for you to come online. Do not take risky fights for no reason.</div></div>
+    <div class="arch-card"><div class="arch-title">Window clash</div><div class="arch-desc">When a mid-spiker meets a late-scaler, the mid-spiker must snowball or die. If the game hits 35 minutes, the late-scaler wins by default.</div></div>
+    <div class="arch-card"><div class="arch-title">Team timing mismatch</div><div class="arch-desc">A mix of early and late peaks is dangerous — your early players don't have help when they need it. Align timing within 1–2 tiers.</div></div>
+    <div class="arch-card"><div class="arch-title">Objective tempo</div><div class="arch-desc">Power windows don't run on clocks — they run on objectives. Rift Herald, dragon, Baron, and towers are the checkpoints where you spend your power or lose it.</div></div>
+    <div class="arch-card"><div class="arch-title">Hybrid is a draft decision</div><div class="arch-desc">Hybrid champions (Varus, Kayn) shift identity based on build. Know which identity you're committing to before the game starts.</div></div>
+  </div>
+</div>
+
+<!-- ══════════ MATCHUP LOGIC ══════════ -->
+<div id="tab-counters" class="tab">
+  <div class="intro-blurb"><p>Matchup logic is about understanding what the enemy comp needs to function — then taking it away. Every strategy has a structural weakness. The goal is to identify it in draft, not at 25 minutes.</p></div>
+
+  <div class="section-label">What each archetype needs — and how to deny it</div>
+  <div id="matchup-vis"></div>
+
+  <div class="section-label">Item-based counters (Season 2025)</div>
+  <div class="grid2">
+    <div class="card"><h3>Grievous Wounds</h3><p style="margin-top:6px">Reduces healing by 40–60%. Hard counter to Soraka, Vladimir, Yuumi, Dr. Mundo, Warwick, Aatrox. If their comp has 2+ major healers, someone on your team must build GW before third item.</p></div>
+    <div class="card"><h3>Armor / Magic pen</h3><p style="margin-top:6px">Void Staff (magic pen) and Lord Dominik's/Last Whisper (armor pen). If their frontline is Ornn, Malphite, and Leona, armor pen matters more than raw attack speed on your AD carry.</p></div>
+    <div class="card"><h3>Zhonya's Hourglass / Stopwatch</h3><p style="margin-top:6px">Stasis survives burst combos and forces the assassin to leave without a kill. Essential for immobile mages and targeted carries facing Zed, Talon, or Nocturne.</p></div>
+    <div class="card"><h3>Quicksilver Sash (QSS) → Mercurial Scimitar</h3><p style="margin-top:6px">QSS removes most CC including suppression (Malzahar, Warwick). Upgrades to Mercurial Scimitar for crit-building ADCs. Note: Silvermere Dawn was removed from the game in Season 2025. No longer counters Mordekaiser's Realm of Death.</p></div>
+    <div class="card"><h3>Cleanse (summoner spell)</h3><p style="margin-top:6px">Removes most CC plus summoner spell debuffs (Exhaust, Ignite). Unlike QSS, it does not remove suppression. Best on carries expecting heavy CC lockdown who don't build crit (can't use Mercurial).</p></div>
+    <div class="card"><h3>Banshee's Veil</h3><p style="margin-top:6px">Spell shield blocks the first ability hit. Crucial against point-and-click engage (Blitzcrank hook, Fiddle fear). Can negate an entire pick comp's initiation if timed correctly.</p></div>
+  </div>
+</div>
+
+<!-- ══════════ COMP BUILDER ══════════ -->
+<div id="tab-builder" class="tab">
+  <div class="intro-blurb"><p>Pick up to 5 champions per team and get an instant analysis of archetype identity, power timing, range profile, win conditions, and matchup insights.</p></div>
+
+  <div class="builder-tabs">
+    <button class="builder-tab on" onclick="switchBuilderSide('blue', this)">Blue team</button>
+    <button class="builder-tab" onclick="switchBuilderSide('red', this)">Red team</button>
+  </div>
+
+  <div class="builder-grid">
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block"></span> BLUE TEAM
+      </div>
+      <div id="blue-slots"></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span> RED TEAM
+      </div>
+      <div id="red-slots"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="analysis-panel" id="blue-analysis"><div style="font-size:12px;color:var(--text3)">Add blue team picks to see analysis</div></div>
+    <div class="analysis-panel" id="red-analysis"><div style="font-size:12px;color:var(--text3)">Add red team picks to see analysis</div></div>
+  </div>
+
+  <div id="matchup-insights-panel" style="display:none">
+    <div class="section-label">Matchup insights</div>
+    <div id="matchup-insights-list"></div>
+  </div>
+</div>
+
+<!-- ══════════ ROSTER ══════════ -->
+<div id="tab-roster" class="tab">
+  <input type="text" id="search-input" placeholder="Search champion, class, or role…" oninput="filterRoster()">
+  <div class="filter-row">
+    <span class="filter-lbl">Role:</span>
+    <button class="filter-btn on" onclick="toggleFilter(this,'role','All')">All</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'role','Top')">Top</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'role','Jungle')">Jungle</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'role','Mid')">Mid</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'role','ADC')">ADC</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'role','Support')">Support</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-lbl">Peak:</span>
+    <button class="filter-btn on" onclick="toggleFilter(this,'peak','All')">All</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Early')">Early</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Early-Mid')">Early-Mid</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Mid')">Mid</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Mid-Late')">Mid-Late</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Late')">Late</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'peak','Hybrid')">Hybrid</button>
+  </div>
+  <div class="result-count" id="result-count"></div>
+  <div class="champ-grid" id="champ-grid"></div>
+  <div class="champ-detail" id="champ-detail">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div style="font-size:18px;font-weight:700" id="d-name"></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px" id="d-meta"></div>
+      </div>
+      <button onclick="closeDetail()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1">×</button>
+    </div>
+    <div id="d-tags" style="margin-bottom:14px"></div>
+    <div class="detail-row"><span class="detail-lbl">Timing</span><span id="d-why" style="flex:1;color:var(--text2);font-size:13px;line-height:1.6"></span></div>
+    <div class="detail-row" style="margin-bottom:0"><span class="detail-lbl">Gameplan</span><span id="d-gameplan" style="flex:1;color:var(--text);font-size:13px;line-height:1.6;font-weight:600"></span></div>
+  </div>
+</div>
+
+<!-- CHAMPION PICKER OVERLAY -->
+<div class="picker-overlay" id="picker-overlay" onclick="closePicker(event)">
+  <div class="picker-box" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:700">Select champion</span>
+      <button onclick="closePicker()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">×</button>
+    </div>
+    <input type="text" id="picker-search" placeholder="Search…" oninput="renderPickerList()">
+    <div class="picker-list" id="picker-list"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const CHAMPS=[{"n":"Aatrox","r":"Top","p":"Mid","c":"Fighter / Juggernaut","w":"Strongest around first/second bruiser items when Q damage, healing and ultimate make him hard to kill.","g":"Force skirmishes before true hypercarries shred him."},{"n":"Ahri","r":"Mid","p":"Mid","c":"Mages / Burst","w":"Level 6 and first item give pick threat; later she becomes more utility than pure damage.","g":"Play for charm picks and roams, not slow front-to-back DPS."},{"n":"Akali","r":"Mid/Top","p":"Mid-Late","c":"Slayers / Assassin","w":"Weak early, spikes with ult/items, and still scales because shroud/mobility allow repeated access.","g":"Survive lane, look for side-lane and backline angles."},{"n":"Akshan","r":"Mid/Top/ADC","p":"Early-Mid","c":"Slayers / Assassin, Marksman","w":"Strong lane pressure and early skirmish damage, but short range makes late fights harder.","g":"Use early prio and revive pressure to snowball."},{"n":"Alistar","r":"Support","p":"Early-Mid","c":"Tanks / Vanguard","w":"Base CC is strongest in early lane and midgame pick/engage windows; damage scaling is irrelevant.","g":"Roam and force before carries have cleanse/QSS/spacing."},{"n":"Amumu","r":"Jungle/Support","p":"Mid","c":"Tanks / Vanguard","w":"Level 6 and teamfight ult are the spike; early dueling is weak.","g":"Farm/cover to 6, then force grouped fights."},{"n":"Anivia","r":"Mid","p":"Late","c":"Mages / Battlemage","w":"Waveclear, zone control and AP scaling become oppressive once she has mana/items.","g":"Stall and control terrain; avoid early chaos."},{"n":"Annie","r":"Mid/Support","p":"Early-Mid","c":"Mages / Burst","w":"Point-and-click stun plus Tibbers creates reliable early/mid burst, but range limits late carry access.","g":"Flash/Tibbers tempo wins fights before enemies spread."},{"n":"Aphelios","r":"ADC","p":"Late","c":"Marksman","w":"Item and weapon scaling make him monstrous in structured front-to-back fights.","g":"Needs protection and time; avoid early isolated fights."},{"n":"Ashe","r":"ADC/Support","p":"Early-Mid","c":"Marksman","w":"Lane pressure and arrow utility spike early/mid; raw DPS is lower than hypercarries late.","g":"Use hawk/arrow to start picks before late-game DPS gap."},{"n":"Aurelion Sol","r":"Mid","p":"Late","c":"Mages / Battlemage","w":"Stacking and level scaling turn him into a late-game teamfight monster.","g":"Survive and collect stacks; avoid early river fistfights."},{"n":"Aurora","r":"Mid/Top","p":"Mid-Late","c":"Slayers / Assassin","w":"Needs levels/items for burst plus repeated mobility; strongest in clustered midgame fights.","g":"Look for ult zones and flanks, not blind early trades."},{"n":"Azir","r":"Mid","p":"Late","c":"Controller / Enchanter","w":"High DPS, range and soldier scaling peak with items and levels.","g":"Scale to 2-3 items; punish overcommits with shuffle."},{"n":"Bard","r":"Support","p":"Mid","c":"Controller / Catcher","w":"Roams and pick tools are strongest when the map opens; late value depends on ult quality.","g":"Leave lane to create numbers advantages."},{"n":"Bel'Veth","r":"Jungle","p":"Late","c":"Slayers / Skirmisher","w":"Scales with attack speed, resets and objectives, but can snowball early with form.","g":"Avoid coinflip deaths; play for Herald/void tempo and extended fights."},{"n":"Blitzcrank","r":"Support","p":"Early-Mid","c":"Controller / Catcher","w":"Hook threat is most punishing before carries get items/cleanse/positioning.","g":"Look for fog hooks; do not play slow enchanter lanes."},{"n":"Brand","r":"Mid/Support/Jungle","p":"Mid-Late","c":"Mages / Burst","w":"Base damage is high early, but burn/AoE scales brutally into grouped fights.","g":"Fight around clumps and objectives."},{"n":"Braum","r":"Support","p":"Mid-Late","c":"Tanks / Warden","w":"Scales with teamfight peel and passive procs; lane can be matchup dependent.","g":"Stand with carries and punish divers."},{"n":"Briar","r":"Jungle/Top","p":"Mid","c":"Fighter / Diver","w":"Once she has first items she becomes a skirmish/reset threat; late CC/peel can stop her.","g":"Force messy fights before carries kite cleanly."},{"n":"Caitlyn","r":"ADC","p":"Early-Mid","c":"Marksman","w":"Lane range/traps create early plate pressure; mid siege strong, late DPS is good but not peak hypercarry tier.","g":"Win lane and convert plates/towers."},{"n":"Camille","r":"Top","p":"Late","c":"Fighter / Diver","w":"True damage and side-lane scaling become deadly after items, despite decent midgame pick ult.","g":"Farm to item spikes, then split or isolate carries."},{"n":"Cassiopeia","r":"Mid","p":"Late","c":"Mages / Battlemage","w":"Sustained DPS scales extremely well with AP and levels; short range makes early fragile.","g":"Take long fights when protected."},{"n":"Cho'Gath","r":"Top/Mid","p":"Late","c":"Controller / Enchanter","w":"HP stacking, objective control and tankiness scale, though lane can be stable early.","g":"Stack safely and become frontline/execute control."},{"n":"Corki","r":"Mid/ADC","p":"Mid-Late","c":"Marksman","w":"Package/rockets and item spikes define midgame; damage remains strong late.","g":"Play around package timers and poke objectives."},{"n":"Darius","r":"Top","p":"Early-Mid","c":"Fighter / Juggernaut","w":"Bleed/base stats dominate lanes and early skirmishes; later he struggles to reach carries.","g":"Snowball lane and force short-range fights."},{"n":"Diana","r":"Jungle/Mid","p":"Mid","c":"Slayers / Assassin, Fighter / Diver","w":"Level 6 plus first AP item gives huge dive/wombo; late she can be blown up after engage.","g":"Fight on ult cooldown with follow-up."},{"n":"Dr. Mundo","r":"Top/Jungle","p":"Late","c":"Fighter / Juggernaut","w":"HP scaling and durability become oppressive once anti-heal/percent damage are manageable.","g":"Scale and soak; avoid early hard losing lanes."},{"n":"Draven","r":"ADC","p":"Early","c":"Marksman","w":"Axe damage and cash-in snowball are strongest early; late he is still strong but high-risk.","g":"Fight lane, cash out, and end before scaling equalizes."},{"n":"Ekko","r":"Mid/Jungle","p":"Late","c":"Slayers / Assassin","w":"Needs items, then scales well through burst, mobility and R safety/re-entry.","g":"Avoid pointless early flips; spike into side-lane picks."},{"n":"Elise","r":"Jungle","p":"Early","c":"Fighter / Diver","w":"Level 3 dives/cocoon burst are her identity; she falls off if she does not create tempo.","g":"Gank/dive early and punish scaling junglers."},{"n":"Evelynn","r":"Jungle","p":"Mid-Late","c":"Slayers / Assassin","w":"Weak pre-6, then camouflage plus AP scaling creates pick pressure that remains scary late.","g":"Farm to 6, then kill isolated carries."},{"n":"Ezreal","r":"ADC","p":"Mid","c":"Marksman","w":"Two-item poke/kiting spike is huge; late DPS can lag true hypercarries if he misses skillshots.","g":"Use midgame range and safety to control objectives."},{"n":"Fiddlesticks","r":"Jungle","p":"Mid-Late","c":"Controller / Enchanter","w":"Level 6 unlocks fight-winning ult; scales through AoE fear and objective ambushes.","g":"Clear to 6, deny vision, fight from fog."},{"n":"Fiora","r":"Top","p":"Late","c":"Slayers / Skirmisher","w":"True damage vitals and dueling scale extremely hard with items.","g":"Split push and force isolated fights."},{"n":"Fizz","r":"Mid/Jungle","p":"Mid-Late","c":"Slayers / Assassin","w":"Weak levels 1-2, spikes at 6/first item, and scales because E/Zhonya-style play gives repeat access.","g":"Survive early, kill at 6, flank carries."},{"n":"Galio","r":"Mid/Support","p":"Mid","c":"Tanks / Warden","w":"Level 6 roam/counter-engage and teamfight CC define him; damage falls later.","g":"Shove, move, and protect divers/carries."},{"n":"Gangplank","r":"Top/Mid","p":"Late","c":"Controller / Enchanter","w":"Crit/barrel scaling and global ult become devastating with items.","g":"Farm and avoid giving early kills."},{"n":"Garen","r":"Top","p":"Mid","c":"Fighter / Juggernaut","w":"Durable stat-check and execute peak around first/second item; late can struggle into kiting.","g":"Use tempo/side pressure before carries scale."},{"n":"Gnar","r":"Top","p":"Mid","c":"Controller / Enchanter","w":"Mega Gnar teamfight threat peaks midgame; rage timing limits consistency late.","g":"Fight around Mega windows."},{"n":"Gragas","r":"Top/Jungle/Mid","p":"Mid","c":"Tanks / Vanguard","w":"Ult displacement and burst/utility peak once he has levels/haste.","g":"Look for picks and counter-engage."},{"n":"Graves","r":"Jungle","p":"Mid","c":"Controller / Enchanter","w":"Clear speed, tempo and itemized damage spike midgame; scaling depends on comp/access.","g":"Farm fast, invade with prio, play tempo."},{"n":"Gwen","r":"Top/Jungle","p":"Late","c":"Slayers / Skirmisher","w":"AP DPS, true damage-style shredding and untargetable W scale hard.","g":"Take extended fights once items are online."},{"n":"Hecarim","r":"Jungle","p":"Mid","c":"Fighter / Diver","w":"Movement speed engage and first items make him terrifying midgame; late peel can stop him.","g":"Full clear fast and hit ult/item tempo."},{"n":"Heimerdinger","r":"Mid/Top/Support","p":"Early-Mid","c":"Controller / Enchanter","w":"Lane control and turret zones are strongest before coordinated rotations outrange/reset him.","g":"Control lane/objective space, don't chase."},{"n":"Hwei","r":"Mid","p":"Mid-Late","c":"Mages / Artillery","w":"Needs levels/items, then brings enormous range, zone control and teamfight utility.","g":"Scale and fight around choke points."},{"n":"Illaoi","r":"Top","p":"Mid","c":"Fighter / Juggernaut","w":"Level 6 and first items make her zone/1v2 threat huge; late kiting reduces reliability.","g":"Fight where enemies must walk into you."},{"n":"Irelia","r":"Mid/Top","p":"Mid","c":"Fighter / Diver","w":"Blade stacks and first items create huge skirmish power; late CC/peel can shut her down.","g":"Use wave setups and fight before clean 5v5s."},{"n":"Ivern","r":"Jungle","p":"Mid-Late","c":"Controller / Catcher","w":"Shield/utility scale with teammates; early duels are weak but counterganks are strong.","g":"Play around carries and Daisy control."},{"n":"Janna","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Peel, disengage and shield value scale with fed carries.","g":"Deny enemy engage rather than forcing."},{"n":"Jarvan IV","r":"Jungle","p":"Early-Mid","c":"Fighter / Diver","w":"Level 2/3 ganks and Cataclysm spike early; late he becomes engage utility.","g":"Use early pressure and dives."},{"n":"Jax","r":"Top/Jungle","p":"Late","c":"Slayers / Skirmisher","w":"Dueling, side-lane and DPS scale extremely hard with items.","g":"Survive early and become side-lane threat."},{"n":"Jayce","r":"Top/Mid","p":"Early-Mid","c":"Mages / Artillery","w":"Lane poke and first-item lethality tempo are his best windows; late can be outranged/outscaled.","g":"Use prio and poke to snowball objectives."},{"n":"Jhin","r":"ADC","p":"Mid","c":"Marksman, Controller / Catcher","w":"Utility/pick and fourth-shot burst spike midgame; lower sustained DPS than hypercarries late.","g":"Play picks and long-range follow-up, not tank shred."},{"n":"Jinx","r":"ADC","p":"Late","c":"Marksman","w":"Items plus reset passive make her one of the best late-game teamfight carries.","g":"Protect and front-to-back until first reset."},{"n":"Kai'Sa","r":"ADC","p":"Mid-Late","c":"Marksman","w":"Evolutions and mixed damage spike at 2-3 items; can dive or front-to-back depending build.","g":"Play around evolved abilities and follow-up CC."},{"n":"Kalista","r":"ADC","p":"Early-Mid","c":"Marksman","w":"Lane all-ins, rend objective control and tempo are strongest before range/scaling issues matter.","g":"Fight early and stack objectives."},{"n":"Karma","r":"Mid/Support","p":"Early-Mid","c":"Mages / Burst, Controller / Enchanter","w":"Mantra poke/shield dominates lane and early objective fights, but lower late carry threat.","g":"Use early prio and shields to accelerate team."},{"n":"Karthus","r":"Jungle/Mid","p":"Late","c":"Mages / Battlemage","w":"Farm speed, AP scaling and global ult get stronger as game goes long.","g":"Full clear, avoid early deaths, press R for tempo."},{"n":"Kassadin","r":"Mid","p":"Late","c":"Slayers / Assassin","w":"Level 16/item scaling is the classic late-game assassin pattern.","g":"Survive lane and avoid early river fights."},{"n":"Katarina","r":"Mid","p":"Mid-Late","c":"Slayers / Assassin","w":"Reset scaling makes her deadly in messy fights, but CC and coordinated teams punish her.","g":"Roam and clean up after cooldowns are used."},{"n":"Kayle","r":"Top/Mid","p":"Late","c":"Controller / Enchanter","w":"Level/item transformations turn her from weak laner to hypercarry.","g":"Farm safely; play around level 11/16."},{"n":"Kayn","r":"Jungle","p":"Mid-Late","c":"Slayers / Skirmisher","w":"Form plus items determine spike; Rhaast scales into bruisers, Shadow Assassin spikes midgame picks.","g":"Rush form and play to chosen form identity."},{"n":"Kennen","r":"Top/Mid","p":"Mid","c":"Controller / Enchanter","w":"Level 6 and flank ult define his strongest teamfight window; damage scales but depends on access.","g":"Flank with ult/flash, don't front-walk."},{"n":"Kha'Zix","r":"Jungle","p":"Mid","c":"Slayers / Assassin","w":"Isolation plus evolutions spike midgame; late depends on enemy mispositioning.","g":"Play fog, picks and isolated targets."},{"n":"Kindred","r":"Jungle","p":"Late","c":"Marksman","w":"Marks and crit/on-hit scaling make her a ranged jungle carry if not shut down.","g":"Protect tempo, mark control, avoid early coinflips."},{"n":"Kled","r":"Top","p":"Early-Mid","c":"Slayers / Skirmisher","w":"Base damage/remount and dive threat dominate early/mid; later he struggles into peel.","g":"Force fights and roams before scaling."},{"n":"Kog'Maw","r":"ADC","p":"Late","c":"Marksman","w":"On-hit range/DPS with protection becomes absurd late.","g":"Needs peel and front-to-back fights."},{"n":"K'Sante","r":"Top","p":"Mid-Late","c":"Tanks / Warden, Slayers / Skirmisher","w":"Tank utility plus All Out threat scales with levels/items, but lane is skill-dependent.","g":"Soak, isolate key targets, and teamfight patiently."},{"n":"LeBlanc","r":"Mid","p":"Early-Mid","c":"Mages / Burst","w":"Lane pressure and pick burst are strongest before enemies group and buy durability.","g":"Create tempo with roams/picks."},{"n":"Lee Sin","r":"Jungle","p":"Early","c":"Fighter / Diver","w":"Early dueling/ganks are elite; later he becomes kick utility unless far ahead.","g":"Invade, gank, and snowball lanes."},{"n":"Leona","r":"Support","p":"Early-Mid","c":"Tanks / Vanguard","w":"Hard engage and base tankiness are best in lane/early roams.","g":"Force 2v2/3v3 before carries have cleanse/items."},{"n":"Lillia","r":"Jungle/Top","p":"Late","c":"Slayers / Skirmisher","w":"Movement speed, burn and AoE sleep scale into extended/objective fights.","g":"Farm and kite into multi-man sleeps."},{"n":"Lissandra","r":"Mid","p":"Mid","c":"Mages / Burst, Mages / Battlemage","w":"Level 6 point-and-click lockdown and teamfight setup are her main spike.","g":"Set up picks and counter divers."},{"n":"Lucian","r":"ADC/Mid","p":"Early-Mid","c":"Marksman","w":"Lane burst and first-item tempo are his strength; lower range can hurt late.","g":"Win lane and skirmish early."},{"n":"Lulu","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Polymorph, shields and ult scale with hypercarries.","g":"Enable the carry and deny assassins."},{"n":"Lux","r":"Mid/Support","p":"Mid","c":"Mages / Artillery, Mages / Burst","w":"Poke/pick spike with levels/AP; late utility remains, but immobility is punishable.","g":"Control vision and fish for bindings."},{"n":"Malphite","r":"Top","p":"Mid","c":"Tanks / Vanguard","w":"Level 6 teamfight engage is the spike; late utility remains but damage falls.","g":"Ult key carries or protect backline."},{"n":"Malzahar","r":"Mid","p":"Mid-Late","c":"Mages / Battlemage","w":"Waveclear and suppression pick scale with objectives; damage is steady but not explosive early.","g":"Push and use R to punish divers/carries."},{"n":"Maokai","r":"Top/Jungle/Support","p":"Mid-Late","c":"Tanks / Vanguard","w":"Objective control, saplings and CC scale well in team environments.","g":"Play vision/chokes and peel/engage."},{"n":"Master Yi","r":"Jungle","p":"Late","c":"Slayers / Skirmisher","w":"Item-scaling reset DPS makes him a late-game cleanup monster.","g":"Farm, avoid early CC-heavy fights, clean up after cooldowns."},{"n":"Milio","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Range extension, cleanse and shields scale with ADC items.","g":"Protect carries and extend their DPS window."},{"n":"Miss Fortune","r":"ADC","p":"Mid","c":"Marksman","w":"Lane strength and Bullet Time spike midgame fights; late is strong but less flexible than hypercarries.","g":"Fight around ult angles and CC setup."},{"n":"Mordekaiser","r":"Top/Jungle","p":"Mid-Late","c":"Fighter / Juggernaut","w":"First items and ult isolation give strong midgame duels; late mobility/kiting can hurt.","g":"Ult the right target and win isolated fights."},{"n":"Morgana","r":"Support/Mid/Jungle","p":"Mid","c":"Controller / Catcher","w":"Binding/Black Shield utility peaks around pick/objective fights.","g":"Deny engage and catch immobile targets."},{"n":"Naafiri","r":"Mid/Jungle","p":"Mid","c":"Slayers / Assassin","w":"Reliable point-and-click-ish dive spikes at ult/items; late peel hurts.","g":"Snowball picks and side-lane pressure."},{"n":"Nami","r":"Support","p":"Early-Mid","c":"Controller / Enchanter","w":"Lane trading and first skirmishes are strong; late utility is good but not Lulu/Janna scaling.","g":"Win lane and enable early trades."},{"n":"Nasus","r":"Top","p":"Mid-Late","c":"Fighter / Juggernaut","w":"Stacks scale, but his practical peak is often mid-late before coordinated kiting ruins him.","g":"Farm stacks and force side-lane pressure."},{"n":"Nautilus","r":"Support/Jungle","p":"Early-Mid","c":"Tanks / Vanguard","w":"Reliable CC engage is strongest in lane and early objective fights.","g":"Start fights before enemies have defensive tools."},{"n":"Neeko","r":"Mid/Support","p":"Mid","c":"Mages / Burst, Controller / Catcher","w":"Ult/flank combo is strongest when grouped fights start; damage later is okay but access matters.","g":"Use disguise/flanks for multi-man R."},{"n":"Nidalee","r":"Jungle","p":"Early","c":"Controller / Enchanter","w":"Fast clear, invade and spear pressure are early-tempo tools; falls off if no lead.","g":"Invade and snowball with lane prio."},{"n":"Nilah","r":"ADC","p":"Late","c":"Slayers / Skirmisher","w":"Melee ADC scaling, XP/passive and teamfight ult make her scale hard with support.","g":"Survive lane and take clustered fights."},{"n":"Nocturne","r":"Jungle/Top","p":"Mid","c":"Slayers / Assassin","w":"Level 6 Paranoia creates his best map pressure; late he is more pick tool than pure carry.","g":"Play around ult cooldown and dark-map picks."},{"n":"Nunu & Willump","r":"Jungle","p":"Early-Mid","c":"Tanks / Vanguard","w":"Early ganks and objective control define him; later damage/carry threat drops.","g":"Gank early and stack objectives."},{"n":"Olaf","r":"Top/Jungle","p":"Early-Mid","c":"Fighter / Diver","w":"Early axes/lifesteal and ult anti-CC are strongest before carries kite him late.","g":"Run down lanes and force fights early."},{"n":"Orianna","r":"Mid","p":"Late","c":"Mages / Burst","w":"AP scaling, zone control and ball delivery improve massively with items.","g":"Scale and fight around Shockwave."},{"n":"Ornn","r":"Top","p":"Late","c":"Tanks / Vanguard","w":"Tank scaling plus item upgrades give huge late team value.","g":"Survive lane and teamfight/upgrade."},{"n":"Pantheon","r":"Top/Mid/Support","p":"Early","c":"Fighter / Diver","w":"Point-and-click stun and base damage dominate early; late he becomes pick/utility.","g":"Snowball lanes and use R tempo."},{"n":"Poppy","r":"Top/Jungle/Support","p":"Mid","c":"Tanks / Warden","w":"Anti-dash, objective control and pick tools spike midgame; scaling is utility-based.","g":"Draft into dashes and deny engage."},{"n":"Pyke","r":"Support/Mid","p":"Early-Mid","c":"Slayers / Assassin, Controller / Catcher","w":"Roams and execute resets are strongest before enemies group/tank up.","g":"Roam, create picks, cash out."},{"n":"Qiyana","r":"Mid/Jungle","p":"Early-Mid","c":"Slayers / Assassin","w":"Early burst/terrain ult can snowball; late execution becomes harder into grouping.","g":"Fight around river/brush and snowball tempo."},{"n":"Quinn","r":"Top","p":"Early-Mid","c":"Controller / Enchanter","w":"Lane range and roam speed create early/mid pressure; late teamfights are awkward.","g":"Win side and roam with ult."},{"n":"Rakan","r":"Support","p":"Mid","c":"Controller / Catcher","w":"Level 6 and mobility engage spike in midgame grouped fights.","g":"Look for multi-man engage with follow-up."},{"n":"Rammus","r":"Jungle","p":"Mid","c":"Tanks / Vanguard","w":"Armor/taunt spike into AD comps around midgame; early clear/tempo can be limited.","g":"Gank AD carries and force them to hit you."},{"n":"Rek'Sai","r":"Jungle","p":"Early","c":"Fighter / Diver","w":"Early tunnels, burst and ganks are her identity; falls off in 5v5 scaling.","g":"Invade/gank and end through tempo."},{"n":"Rell","r":"Support/Jungle","p":"Mid","c":"Tanks / Vanguard","w":"Teamfight engage is strongest once ult and grouped objectives matter.","g":"Do not waste engage; wait for follow-up."},{"n":"Renata Glasc","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Bailout and hostile takeover scale with enemy/carry damage.","g":"Counter-engage and let enemies overcommit."},{"n":"Renekton","r":"Top/Mid","p":"Early","c":"Fighter / Diver","w":"Lane dominance, fury trades and early dives peak before scaling champs outgrow him.","g":"Win lane and help jungle snowball."},{"n":"Rengar","r":"Jungle/Top","p":"Mid","c":"Slayers / Assassin, Fighter / Diver","w":"Level 6/items and fog create lethal pick windows; late depends on vision/mispositioning.","g":"Control bushes/fog and delete isolated carries."},{"n":"Riven","r":"Top","p":"Early-Mid","c":"Slayers / Skirmisher","w":"High mechanical burst and first items dominate early/mid if ahead; late depends on execution.","g":"Use lane/skirmish windows before peel scales."},{"n":"Rumble","r":"Top/Mid/Jungle","p":"Mid","c":"Mages / Battlemage","w":"Equalizer and magic damage dominate midgame objective fights.","g":"Fight around dragon/herald chokes."},{"n":"Ryze","r":"Mid/Top","p":"Late","c":"Mages / Battlemage","w":"Mana/AP scaling and DPS improve with levels/items; early is vulnerable.","g":"Scale and use Realm Warp for map pressure."},{"n":"Samira","r":"ADC","p":"Mid","c":"Marksman","w":"Level 6 and first items enable all-in resets; late CC/range can stop her.","g":"Fight with engage support and stack style safely."},{"n":"Sejuani","r":"Jungle/Top","p":"Mid","c":"Tanks / Vanguard","w":"Level 6 CC and melee synergy spike midgame; damage falls but engage remains useful.","g":"Play around melee allies and pick with R."},{"n":"Senna","r":"Support/ADC","p":"Late","c":"Marksman, Controller / Enchanter","w":"Soul stacking range/damage and utility scale continuously.","g":"Farm souls and avoid early all-in deaths."},{"n":"Seraphine","r":"Support/Mid/APC","p":"Late","c":"Mages / Burst, Controller / Enchanter","w":"Shields, healing, CC chains and AoE scale massively in grouped fights.","g":"Group and play slow front-to-back."},{"n":"Sett","r":"Top/Support","p":"Early-Mid","c":"Fighter / Juggernaut","w":"Base stats and W trades are strongest before kiting/percent damage grows.","g":"Force brawls and punish melee comps."},{"n":"Shaco","r":"Jungle/Support","p":"Early-Mid","c":"Slayers / Assassin","w":"Early cheese/ganks and chaos are strongest before coordinated grouping.","g":"Create early uncertainty and picks."},{"n":"Shen","r":"Top/Support","p":"Mid","c":"Tanks / Warden","w":"Level 6 global impact and taunt picks spike midgame; side pressure later is utility.","g":"Ult winning skirmishes, don't AFK lane."},{"n":"Shyvana","r":"Jungle","p":"Mid-Late","c":"Fighter / Juggernaut","w":"Farm/dragon form and item scaling spike after levels/items; weak ganks early.","g":"Power farm and fight with dragon form."},{"n":"Singed","r":"Top","p":"Mid-Late","c":"Controller / Enchanter","w":"Proxy/tempo and durability scale into disruptive mid-late fights.","g":"Create map chaos and avoid standard laning when bad."},{"n":"Sion","r":"Top/Mid","p":"Late","c":"Tanks / Vanguard","w":"HP scaling, waveclear and engage/frontline value grow with time.","g":"Farm, soak, and force objective engages."},{"n":"Sivir","r":"ADC","p":"Late","c":"Marksman","w":"Waveclear plus ricochet DPS scales well in grouped fights.","g":"Stall waves and front-to-back with team speed."},{"n":"Skarner","r":"Jungle/Top","p":"Mid","c":"Tanks / Vanguard","w":"Pick/drag threat and tankiness spike midgame; late is utility engage.","g":"Use terrain/control to isolate carries."},{"n":"Smolder","r":"ADC/Mid","p":"Late","c":"Marksman","w":"Stacking Q and execute scaling make him one of the clearest late scalers.","g":"Stack safely and stall."},{"n":"Sona","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Aura scaling, haste and teamfight sustain become huge with levels/items.","g":"Do not hard fight early; group later."},{"n":"Soraka","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Healing and silence scale with teamfight duration and carry items.","g":"Keep carries alive and deny dives."},{"n":"Swain","r":"Mid/Support/APC","p":"Mid-Late","c":"Mages / Battlemage","w":"Ultimate drain and battlemage durability peak in extended grouped fights.","g":"Fight long, in tight spaces, with enemies forced into you."},{"n":"Sylas","r":"Mid/Top/Jungle","p":"Mid","c":"Slayers / Skirmisher, Mages / Burst","w":"Level 6 ult stealing and first items create huge skirmish power; late depends on enemy ults.","g":"Fight when good ults are available."},{"n":"Syndra","r":"Mid","p":"Mid-Late","c":"Mages / Burst","w":"Burst scales well with AP and scatter pick threat; early is manageable but not dominant.","g":"Farm to AP spikes and pick with E."},{"n":"Tahm Kench","r":"Top/Support","p":"Mid","c":"Tanks / Warden","w":"Lane durability and devour utility spike midgame; late is mostly peel/frontline.","g":"Protect carries or punish melee lanes."},{"n":"Taliyah","r":"Mid/Jungle","p":"Mid-Late","c":"Mages / Battlemage","w":"Waveclear, roaming and terrain control scale well into objective fights.","g":"Move first and control chokes."},{"n":"Talon","r":"Mid/Jungle","p":"Early-Mid","c":"Slayers / Assassin","w":"Level 2/3 damage and roams are his best windows; late grouping hurts.","g":"Push/roam and snowball sides."},{"n":"Taric","r":"Support","p":"Late","c":"Tanks / Warden, Controller / Enchanter","w":"Invulnerability ult and scaling peel are strongest in grouped late fights.","g":"Pair with divers/carries and time ult."},{"n":"Teemo","r":"Top/ADC","p":"Early-Mid","c":"Marksman, Controller / Enchanter","w":"Lane poke/blind and shroom map control spike early-mid; late teamfights can be awkward.","g":"Win lane and control objective traps."},{"n":"Thresh","r":"Support","p":"Early-Mid","c":"Controller / Catcher","w":"Hook/flay/lantern create early picks and roams; late he becomes utility.","g":"Play fog and roam before carries outscale."},{"n":"Tristana","r":"ADC/Mid","p":"Late","c":"Marksman","w":"Can snowball early, but range and crit scaling make her true late-game DPS.","g":"Scale or use early all-ins to accelerate."},{"n":"Trundle","r":"Top/Jungle","p":"Early-Mid","c":"Fighter / Juggernaut","w":"Dueling and stat-steal are strongest early/mid, especially into tanks.","g":"Invade/fight tanks and take objectives."},{"n":"Tryndamere","r":"Top","p":"Late","c":"Slayers / Skirmisher","w":"Crit side-lane scaling and ultimate make him oppressive in split push.","g":"Pressure side lanes, not 5v5."},{"n":"Twisted Fate","r":"Mid","p":"Mid","c":"Mages / Burst","w":"Level 6 global tempo and pick tools define his window; raw damage is not late-carry tier.","g":"Use ult to create numbers advantages."},{"n":"Twitch","r":"ADC/Jungle","p":"Late","c":"Marksman","w":"Stealth plus AoE ultimate and item scaling can wipe teams late.","g":"Farm and look for flank ult angles."},{"n":"Udyr","r":"Jungle/Top","p":"Mid","c":"Fighter / Juggernaut","w":"Clear speed and stat-checking spike midgame; late can get kited.","g":"Use tempo, invade and objective control."},{"n":"Urgot","r":"Top","p":"Mid-Late","c":"Fighter / Juggernaut","w":"Level 9/13 and bruiser items make him a strong execute/skirmish threat.","g":"Hit shotgun/level spikes and side-lane."},{"n":"Varus","r":"ADC/Mid","p":"Hybrid","c":"Mages / Artillery, Marksman","w":"Lethality Varus peaks early-mid poke; on-hit/AP versions scale later.","g":"Read build: poke early or DPS late."},{"n":"Vayne","r":"ADC/Top","p":"Late","c":"Marksman","w":"True damage and mobility scale extremely hard into tanks and long fights.","g":"Survive lane and duel/front-to-back later."},{"n":"Veigar","r":"Mid/APC","p":"Late","c":"Mages / Burst","w":"Infinite AP stacking and cage utility become stronger with time.","g":"Stack, cage objectives, one-shot late."},{"n":"Vel'Koz","r":"Mid/Support","p":"Mid-Late","c":"Mages / Artillery","w":"Artillery poke and true-damage ult scale with positioning, but immobility is punishable.","g":"Poke before fights and punish grouped enemies."},{"n":"Vex","r":"Mid","p":"Mid","c":"Mages / Burst","w":"Anti-dash fear and reset ult spike midgame picks; late depends on reset access.","g":"Punish divers and chain R resets."},{"n":"Vi","r":"Jungle","p":"Early-Mid","c":"Fighter / Diver","w":"Reliable ganks and level 6 point-click engage peak early/mid; late she is engage utility.","g":"Pick one carry and start fights with team follow-up."},{"n":"Viego","r":"Jungle","p":"Mid","c":"Slayers / Skirmisher","w":"Reset passive and first items make midgame skirmishes deadly; late depends on getting first reset.","g":"Fight messy skirmishes and clean up resets."},{"n":"Viktor","r":"Mid","p":"Late","c":"Mages / Battlemage","w":"Augments/items give waveclear, control and AP scaling.","g":"Scale to upgrades and fight slow."},{"n":"Vladimir","r":"Mid/Top","p":"Late","c":"Mages / Battlemage","w":"AP/HP scaling and AoE burst/heal make him a late-game teamfight threat.","g":"Farm to items and flank with ult."},{"n":"Volibear","r":"Top/Jungle","p":"Early-Mid","c":"Fighter / Juggernaut","w":"Early skirmish, dives and stat-checking are strongest before late DPS kites him.","g":"Dive with ult and snowball lanes."},{"n":"Warwick","r":"Jungle/Top","p":"Early","c":"Fighter / Diver","w":"Early dueling/sustain are elite; late teamfights expose kite/CC issues.","g":"Invade/gank early and abuse low-HP tracking."},{"n":"Wukong","r":"Jungle/Top","p":"Mid","c":"Fighter / Diver","w":"Level 6 double knockup and bruiser items spike midgame teamfights.","g":"Force grouped fights with R follow-up."},{"n":"Xayah","r":"ADC","p":"Late","c":"Marksman","w":"Feather scaling, self-peel and crit DPS shine in structured late fights.","g":"Front-to-back and punish divers."},{"n":"Xerath","r":"Mid/Support","p":"Mid-Late","c":"Mages / Artillery","w":"Range/poke scale into objective setups, but immobility limits messy late fights.","g":"Chip enemies before fights start."},{"n":"Xin Zhao","r":"Jungle","p":"Early-Mid","c":"Fighter / Diver","w":"Level 2/3 dueling and early ganks are strong; later he becomes engage/zone utility.","g":"Fight early and convert tempo."},{"n":"Yasuo","r":"Mid/Top","p":"Late","c":"Slayers / Skirmisher","w":"Crit scaling plus wind wall and ult synergy make him strong with items, despite midgame spikes.","g":"Need knockup setup and clean fight entry."},{"n":"Yone","r":"Mid/Top","p":"Late","c":"Slayers / Assassin, Slayers / Skirmisher","w":"Crit scaling, mixed damage and safe engage make him scale hard.","g":"Farm to items, then threaten backline angles."},{"n":"Yorick","r":"Top","p":"Mid-Late","c":"Fighter / Juggernaut","w":"Maiden and side-lane pressure spike after levels/items; teamfighting is weaker.","g":"Split push and force responses."},{"n":"Yuumi","r":"Support","p":"Late","c":"Controller / Enchanter","w":"Enchanter scaling tied to a fed carry makes her strongest with items/levels.","g":"Attach to the win condition and avoid early losing trades."},{"n":"Zac","r":"Jungle/Top","p":"Mid","c":"Tanks / Vanguard","w":"Long-range engage plus tankiness spike around level 6/midgame fights.","g":"Gank from fog and chain CC."},{"n":"Zed","r":"Mid/Jungle","p":"Mid","c":"Slayers / Assassin","w":"Level 6 and lethality item spikes are strongest; late grouping/armor/peel reduce reliability.","g":"Snowball picks and side lane."},{"n":"Zeri","r":"ADC","p":"Late","c":"Marksman","w":"Mobility and item-scaling DPS become extremely dangerous in extended fights.","g":"Scale and kite long fights."},{"n":"Ziggs","r":"Mid/APC","p":"Mid-Late","c":"Mages / Artillery","w":"Waveclear/siege and tower pressure spike midgame and remain useful late.","g":"Siege, poke and avoid direct all-ins."},{"n":"Zilean","r":"Mid/Support","p":"Late","c":"Controller / Enchanter","w":"Speed, double bomb control and revive scale with carry value.","g":"Protect fed teammates and deny burst."},{"n":"Zoe","r":"Mid","p":"Early-Mid","c":"Mages / Burst","w":"Bubble/poke and summoner spell chaos spike before late grouping reduces angles.","g":"Play fog, fish for bubbles, snowball picks."},{"n":"Zyra","r":"Support/Mid","p":"Early-Mid","c":"Controller / Catcher","w":"Lane poke and objective zone control are strongest early/mid; later she is fragile.","g":"Win lane and control chokes with plants."}];
+
+// ═══════════════ ARCHETYPES DATA ═══════════════
+const ARCHETYPES = [
+  { id:'engage',   name:'Engage / Wombo',      color:'#ef4444', icon:'⚡',
+    beats:['poke','split'],  loses:['disengage','pick'],
+    desc:'Force a fight with AoE CC onto multiple targets. Win condition: land one big team ability and chain follow-up. Needs clean angle and grouped enemies.',
+    classes:'Vanguard, Warden, AoE mages', examples:['Malphite','Amumu','Orianna','Miss Fortune'] },
+  { id:'poke',     name:'Poke / Siege',         color:'#3b82f6', icon:'🎯',
+    beats:['dive','sustain'], loses:['engage','pick'],
+    desc:'Chip enemies down from range before committing. Take objectives while they back. Needs waveclear and disengage to avoid being hard-engaged.',
+    classes:'Artillery, Marksman, Catcher', examples:['Jayce','Xerath','Caitlyn','Lux'] },
+  { id:'pick',     name:'Pick / Assassinate',   color:'#a855f7', icon:'🗡️',
+    beats:['poke','split'],  loses:['group','aoe'],
+    desc:'Create a numbers advantage by removing one target before a fight. Win condition: isolation — catch someone out, then 4v5 the rest.',
+    classes:'Assassin, Catcher, pick-support', examples:['Zed','Blitzcrank','Ahri','Pyke'] },
+  { id:'protect',  name:'Protect the Carry',    color:'#34d399', icon:'🛡️',
+    beats:['dive','burst'],  loses:['poke','split'],
+    desc:'Surround a hypercarry with peel, heals, shields, and disengage. Win condition: reach late game with carry full items and alive.',
+    classes:'Enchanter, Warden, Marksman', examples:["Lulu","Janna","Kog'Maw","Zilean"] },
+  { id:'split',    name:'Split Push',            color:'#84cc16', icon:'↔️',
+    beats:['teamfight','group'], loses:['global','teleport'],
+    desc:'Win map pressure 1v1 or 2v2 in side lanes, force the enemy to respond. Win condition: take towers faster than they take yours.',
+    classes:'Skirmisher, Juggernaut, global ults', examples:['Fiora','Jax','Tryndamere','Shen'] },
+  { id:'dive',     name:'Dive / Run at You',     color:'#f59e0b', icon:'🏃',
+    beats:['poke','enchanter'], loses:['disengage','warden'],
+    desc:'Dive past the frontline to delete the backline. Win condition: reach and kill the carry before peel responds. Countered by disengage and stasis.',
+    classes:'Diver, Assassin, engage-junglers', examples:['Irelia','Hecarim','Nocturne',"Kha'Zix"] },
+  { id:'sustain',  name:'Sustain / Drain',       color:'#60a5fa', icon:'💚',
+    beats:['dive','burst'],  loses:['grievous','poke'],
+    desc:'Out-heal or out-sustain in extended fights. Win condition: long fights where healing outlasts burst. Hard-countered by Grievous Wounds.',
+    classes:'Enchanter, Battlemage, sustain fighters', examples:['Vladimir','Soraka','Swain','Warwick'] },
+  { id:'teamfight',name:'Teamfight AoE',         color:'#818cf8', icon:'💥',
+    beats:['split','pick'],  loses:['poke','disengage'],
+    desc:'Stack AoE damage, CC, and resets for grouped 5v5 fights. Win condition: teamfight quality beats individual carry. Weak to split and picks before grouping.',
+    classes:'Vanguard, Battlemage, AoE carries', examples:['Sejuani','Katarina','Jinx','Brand'] },
+];
+
+const CLASS_DATA = [
+  { group:'Tanks', color:'#ef4444', classes:[
+    { name:'Vanguard', tag:'t-red', role:'Aggressive initiators. Start fights on favorable terms, soak initial damage, create chaos. Almost always melee. Peak: usually mid — need level 6 or one item.', examples:['Malphite','Leona','Nautilus','Amumu','Sejuani'] },
+    { name:'Warden',   tag:'t-blue', role:'Defensive protectors. Bodyblock, peel, prevent enemies from reaching carries. React to enemy engage. Often scale into late game.', examples:['Braum','Galio','Poppy','Tahm Kench','Taric'] },
+  ]},
+  { group:'Fighters', color:'#f97316', classes:[
+    { name:'Juggernaut', tag:'t-coral', role:'Tanky damage dealers. Hard to kill in a short exchange but can\'t easily chase. Countered by kiting and percent health damage. Often top-lane melee.', examples:['Darius','Garen','Illaoi','Dr. Mundo','Mordekaiser'] },
+    { name:'Diver',      tag:'t-amber', role:'Mobile fighters who engage onto priority targets. Less tanky than Vanguards but deal more damage. Win condition: reach and delete the backline.', examples:['Jarvan IV','Camille','Hecarim','Irelia','Vi'] },
+  ]},
+  { group:'Slayers', color:'#a855f7', classes:[
+    { name:'Assassin',   tag:'t-purple', role:'High-damage burst killers. Reach an isolated carry and delete them before they react. Almost always melee. Countered by grouping, vision control, and CC.', examples:['Zed','Ahri','Kha\'Zix','Katarina','Rengar'] },
+    { name:'Skirmisher', tag:'t-amber', role:'Sustained fighters who win extended 1v1/2v2 brawls. Less burst than assassins but more durable. Excel in side lanes. Many scale to hypercarry territory.', examples:['Fiora','Jax','Yasuo','Master Yi','Tryndamere'] },
+  ]},
+  { group:'Mages', color:'#60a5fa', classes:[
+    { name:'Burst mage',    tag:'t-blue', role:'One-rotation killers. Dump all abilities to delete a target, then wait for cooldowns. Countered by mobile champions who dodge or escape the combo window.', examples:['Syndra','Veigar','Annie','LeBlanc','Zoe'] },
+    { name:'Battlemage',    tag:'t-purple', role:'Sustained AP damage dealers. Stay in melee/short range and apply DPS over several seconds. Need CC, mobility, or healing to survive. Almost all scale hard late.', examples:['Viktor','Vladimir','Cassiopeia','Swain','Rumble'] },
+    { name:'Artillery mage',tag:'t-blue', role:'Extreme range damage. Win condition: poke from beyond enemy effective range. Immobile and fragile — punished severely if engaged on. Strong for siege.', examples:['Jayce','Xerath',"Vel'Koz",'Ziggs','Hwei'] },
+  ]},
+  { group:'Marksman', color:'#84cc16', classes:[
+    { name:'Marksman (ADC)', tag:'t-green', role:'Ranged, auto-attack–based carries. Win condition: survive to items, then apply sustained DPS from a safe position. Kiting and positioning are everything. Primary late-game scaling class. Note: Marksmen are physical ranged carries — distinct from mages despite both being ranged.', examples:['Jinx','Vayne','Jhin','Caitlyn','Twitch'] },
+  ]},
+  { group:'Controllers', color:'#34d399', classes:[
+    { name:'Enchanter', tag:'t-teal', role:'Utility supports who amplify teammates. Heals, shields, speed buffs, soft CC. Enable hypercarries and frustrate assassins. Countered by Grievous Wounds and hard engage.', examples:['Lulu','Janna','Soraka','Yuumi','Milio'] },
+    { name:'Catcher',   tag:'t-coral', role:'Pick-focused supports with long-range CC. Win condition: land hook/snare on an isolated target to start a favorable fight. Require roaming to generate leads.', examples:['Blitzcrank','Thresh','Morgana','Bard','Zyra'] },
+  ]},
+];
+
+// ═══════════════ CORE UI ═══════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelector(`.nav button[onclick="switchTab('${id}')"]`).classList.add('active');
+  if (id==='timing') renderTimingBars();
+  if (id==='archetypes') renderArchetypes();
+  if (id==='classes') renderClasses();
+  if (id==='counters') renderMatchupVis();
+  if (id==='builder') renderBuilder();
+  if (id==='roster') renderRoster();
+}
+
+// ═══════════════ ARCHETYPES TAB ═══════════════
+let highlightedArch = null;
+function renderArchetypes() {
+  renderArchNodes();
+  renderArchDetailCards();
+  renderCounterFlow();
+  renderCounterMatrix();
+}
+
+function renderArchNodes() {
+  const wrap = document.getElementById('arch-nodes');
+  wrap.innerHTML = ARCHETYPES.map(a => {
+    const isActive = highlightedArch === a.id;
+    const border = isActive ? `border-color:${a.color};box-shadow:0 0 0 1px ${a.color}40` : '';
+    const beatsHighlight = highlightedArch && ARCHETYPES.find(x=>x.id===highlightedArch)?.beats.includes(a.id);
+    const losesHighlight = highlightedArch && ARCHETYPES.find(x=>x.id===highlightedArch)?.loses.includes(a.id);
+    const dimStyle = highlightedArch && !isActive && !beatsHighlight && !losesHighlight ? 'opacity:0.35' : '';
+    const beatsGlow = beatsHighlight ? `border-color:#34d399;box-shadow:0 0 0 1px #34d39940` : '';
+    const losesGlow = losesHighlight ? `border-color:#ef4444;box-shadow:0 0 0 1px #ef444440` : '';
+    const finalStyle = border || beatsGlow || losesGlow || dimStyle;
+    return `<div class="arch-node" id="node-${a.id}" onclick="highlightArch('${a.id}')" style="${finalStyle}">
+      <div class="arch-node-icon">${a.icon}</div>
+      <div class="arch-node-name" style="color:${a.color}">${a.name}</div>
+      <div class="arch-node-beats">✓ beats: ${a.beats.join(', ')}</div>
+      <div class="arch-node-loses">✗ loses: ${a.loses.join(', ')}</div>
+      ${isActive ? `<div style="font-size:10px;color:var(--text3);margin-top:4px;border-top:1px solid var(--border);padding-top:4px">${ARCHETYPES.find(x=>x.id===a.id).desc.slice(0,80)}…</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function highlightArch(id) {
+  highlightedArch = highlightedArch === id ? null : id;
+  renderArchNodes();
+}
+
+function renderArchDetailCards() {
+  document.getElementById('arch-detail-cards').innerHTML = ARCHETYPES.map(a => `
+    <div class="arch-card" style="border-left:3px solid ${a.color}">
+      <div class="arch-title" style="color:${a.color}">${a.icon} ${a.name}</div>
+      <div class="arch-desc">${a.desc}</div>
+      <div class="arch-eg">Core classes: <span>${a.classes}</span></div>
+      <div style="margin-top:8px">${a.examples.map(e=>`<span class="tag t-gray">${e}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function renderCounterFlow() {
+  const svg = document.getElementById('counter-flow');
+  const W=700, H=360, cx=W/2, cy=H/2, rx=220, ry=130;
+  const n = ARCHETYPES.length;
+  const positions = ARCHETYPES.map((a,i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI/2;
+    return { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle), ...a };
+  });
+
+  let arrowDefs = `<defs>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#34d399"/>
+    </marker>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+    </marker>
+  </defs>`;
+
+  let lines = '';
+  positions.forEach((from, fi) => {
+    ARCHETYPES[fi].beats.forEach(beatId => {
+      const to = positions.find(p => p.id === beatId);
+      if (!to) return;
+      const dx = to.x - from.x, dy = to.y - from.y;
+      const len = Math.sqrt(dx*dx+dy*dy);
+      const ex = from.x + dx/len*42, ey = from.y + dy/len*26;
+      const ex2 = to.x - dx/len*42, ey2 = to.y - dy/len*26;
+      lines += `<line x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${ex2.toFixed(1)}" y2="${ey2.toFixed(1)}" stroke="#34d399" stroke-width="1.2" stroke-opacity="0.4" marker-end="url(#arr-green)"/>`;
+    });
+  });
+
+  let nodes = positions.map(p => `
+    <g>
+      <ellipse cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" rx="38" ry="22" fill="#0c1526" stroke="${p.color}" stroke-width="1.5"/>
+      <text x="${p.x.toFixed(1)}" y="${(p.y-4).toFixed(1)}" text-anchor="middle" font-size="14" fill="${p.color}">${p.icon}</text>
+      <text x="${p.x.toFixed(1)}" y="${(p.y+10).toFixed(1)}" text-anchor="middle" font-size="8" fill="${p.color}" font-weight="700">${p.name.split('/')[0].trim()}</text>
+    </g>`).join('');
+
+  svg.innerHTML = arrowDefs + `<text x="${cx}" y="${cy}" text-anchor="middle" font-size="10" fill="#475569">green arrows = beats</text>` + lines + nodes;
+}
+
+function renderCounterMatrix() {
+  const rows = [
+    ['Engage','Poke, Siege','Disengage, Pick','One good engage collapses poke; disengage pushes them back; picks pre-empt.'],
+    ['Poke','Dive, Sustain','Engage, Pick','Wins if enemy can\'t reach; hard engage closes gap fast; picks remove the pokers.'],
+    ['Pick','Poke, Split','Group, AoE CC','Picks need isolation — grouped/CC-heavy comps remove that.'],
+    ['Protect carry','Dive, Burst','Poke, Split','Survives assassination; poke chips through shields; split forces 5v4.'],
+    ['Split push','Teamfight AoE, Group','Global ults, Teleport','Forces 1v1s the split-pusher wins; global tools answer anywhere.'],
+    ['Dive','Poke, Enchanter','Disengage, Warden','Dive accesses fragile backline; disengage peels them off before the kill.'],
+    ['Sustain','Dive, Burst','Grievous Wounds, Poke','Extended fights favor healing; burst and GW items shut it down.'],
+    ['Teamfight','Split, Pick','Poke, Disengage','Needs grouped fights; split removes the 5v5; poke makes grouping dangerous.'],
+  ];
+  document.getElementById('counter-matrix-body').innerHTML = rows.map(r =>
+    `<tr><td><strong>${r[0]}</strong></td><td style="color:#6ee7b7">${r[1]}</td><td style="color:#f87171">${r[2]}</td><td>${r[3]}</td></tr>`
+  ).join('');
+}
+
+// ═══════════════ CLASSES TAB ═══════════════
+function renderClasses() {
+  let html = '';
+  CLASS_DATA.forEach(g => {
+    html += `<div class="section-label" style="color:${g.color}">${g.group}</div><div class="grid2" style="margin-bottom:20px">`;
+    g.classes.forEach(cls => {
+      html += `<div class="card" style="border-left:3px solid ${g.color}">
+        <h3>${cls.name}</h3>
+        <p style="margin-top:5px;font-size:13px">${cls.role}</p>
+        <div style="margin-top:10px">${cls.examples.map(e=>`<span class="tag ${cls.tag}">${e}</span>`).join('')}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('class-cards').innerHTML = html;
+}
+
+// ═══════════════ TIMING ═══════════════
+function renderTimingBars() {
+  const order = ['Early','Early-Mid','Mid','Mid-Late','Late','Hybrid'];
+  const cls   = {'Early':'sc-early','Early-Mid':'sc-earlymid','Mid':'sc-mid','Mid-Late':'sc-midlate','Late':'sc-late','Hybrid':'sc-hybrid'};
+  const colors = {'Early':'#fb923c','Early-Mid':'#fbbf24','Mid':'#7bb8ff','Mid-Late':'#c084fc','Late':'#6ee7b7','Hybrid':'#94a3b8'};
+  const counts = {}; order.forEach(p => counts[p]=0);
+  CHAMPS.forEach(c => { if(counts[c.p]!==undefined) counts[c.p]++; });
+  const max = Math.max(...Object.values(counts));
+  document.getElementById('timing-bars').innerHTML = order.map(p => `
+    <div class="t-bar-row">
+      <div class="t-bar-label"><span class="spike-chip ${cls[p]}">${p}</span></div>
+      <div class="t-bar-bg">
+        <div class="t-bar-fill" style="width:${Math.round(counts[p]/max*100)}%;background:${colors[p]}22">
+          <span style="color:${colors[p]};font-size:11px;font-weight:700">${counts[p]}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════ MATCHUP VIS ═══════════════
+function renderMatchupVis() {
+  const wrap = document.getElementById('matchup-vis');
+  const threats = [
+    { arch:'Engage comp', needs:'Grouped enemies + clean angle', deny:'Disengage (Janna, Gragas, Poppy) · Stay spread · Vision denial pre-objective', col:'#ef4444' },
+    { arch:'Poke comp',   needs:'Long range, no hard engage',    deny:'Hard engage past poke range · Fast gap-closer · Group after abilities',      col:'#3b82f6' },
+    { arch:'Pick comp',   needs:'Isolation + vision holes',      deny:'Group · Control vision with sweepers · Don\'t face-check',                   col:'#a855f7' },
+    { arch:'Protect-carry',needs:'Time + safety for carry',      deny:'Dive the carry early · Split push · Grievous Wounds',                        col:'#34d399' },
+    { arch:'Split push',  needs:'1v1 superiority + 4v4 threat',  deny:'Global ults (Shen, TF, Karthus) · Teleport advantage · Hard 1v1 counters',  col:'#84cc16' },
+    { arch:'Sustain',     needs:'Extended fights + healing',      deny:'Grievous Wounds (Thornmail, Bramble Vest, Mortal Reminder) · Burst first',   col:'#60a5fa' },
+    { arch:'Dive',        needs:'Access to backline',             deny:'Disengage CC · Invulnerability (Kayle/Taric ult) · Ranged peel',            col:'#f59e0b' },
+    { arch:'Assassins',   needs:'Isolation + surprise',           deny:'Group · Tank between carry · Zhonya\'s / Stopwatch',                         col:'#818cf8' },
+  ];
+  wrap.innerHTML = threats.map(t => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${t.col};border-radius:10px;padding:12px 16px;margin-bottom:10px;display:grid;grid-template-columns:160px 1fr 1fr;gap:14px;align-items:start">
+      <div style="font-size:13px;font-weight:700;color:${t.col}">${t.arch}</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text3);margin-bottom:4px">NEEDS TO FUNCTION</div>
+        <div style="font-size:12px;color:var(--text2)">${t.needs}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text3);margin-bottom:4px">HOW TO DENY</div>
+        <div style="font-size:12px;color:var(--text2)">${t.deny}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════ COMP BUILDER ═══════════════
+let bluePicks = [null,null,null,null,null];
+let redPicks  = [null,null,null,null,null];
+let pickerTarget = null; // {side, idx}
+let pickerQuery = '';
+let builderSide = 'blue';
+
+function switchBuilderSide(side, btn) {
+  builderSide = side;
+  document.querySelectorAll('.builder-tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function renderBuilder() {
+  renderTeamSlots('blue'); renderTeamSlots('red');
+  renderTeamAnalysis('blue'); renderTeamAnalysis('red');
+  renderMatchupInsights();
+}
+
+function renderTeamSlots(side) {
+  const picks = side==='blue' ? bluePicks : redPicks;
+  const color = side==='blue' ? 'var(--blue)' : 'var(--red)';
+  const wrap = document.getElementById(side+'-slots');
+  wrap.innerHTML = picks.map((p, i) => {
+    const champ = p ? CHAMPS.find(c=>c.n===p) : null;
+    return `<div class="team-slot" style="border-color:${champ?color:'var(--border)'}" onclick="openPicker('${side}',${i})">
+      <div class="slot-num" style="background:${color}22;color:${color}">${i+1}</div>
+      ${champ
+        ? `<div style="flex:1"><div class="slot-name">${champ.n}</div><div class="slot-meta">${champ.r} · ${champ.c.split(',')[0]} · <span class="spike-chip ${PEAK_CLASS[champ.p]}">${champ.p}</span></div></div>
+           <button class="slot-remove" onclick="event.stopPropagation();removePick('${side}',${i})">×</button>`
+        : `<div class="slot-name" style="color:var(--text3)">+ Select champion</div>`}
+    </div>`;
+  }).join('');
+}
+
+const PEAK_CLASS = {'Early':'sc-early','Early-Mid':'sc-earlymid','Mid':'sc-mid','Mid-Late':'sc-midlate','Late':'sc-late','Hybrid':'sc-hybrid'};
+
+function openPicker(side, idx) {
+  pickerTarget = {side, idx};
+  pickerQuery = '';
+  document.getElementById('picker-search').value = '';
+  document.getElementById('picker-overlay').classList.add('open');
+  renderPickerList();
+  setTimeout(()=>document.getElementById('picker-search').focus(), 50);
+}
+
+function closePicker(e) {
+  if (!e || e.target === document.getElementById('picker-overlay'))
+    document.getElementById('picker-overlay').classList.remove('open');
+}
+
+function renderPickerList() {
+  pickerQuery = document.getElementById('picker-search').value.toLowerCase();
+  const allPicked = [...bluePicks,...redPicks].filter(Boolean);
+  const list = CHAMPS.filter(c => {
+    if (allPicked.includes(c.n)) return false;
+    return !pickerQuery || c.n.toLowerCase().includes(pickerQuery) || c.c.toLowerCase().includes(pickerQuery);
+  });
+  const tagCls = c => c.c.includes('Vanguard')||c.c.includes('Warden')?'t-red':c.c.includes('Fighter')||c.c.includes('Juggernaut')||c.c.includes('Diver')?'t-amber':c.c.includes('Assassin')||c.c.includes('Skirmisher')?'t-purple':c.c.includes('Mages')||c.c.includes('Battlemage')||c.c.includes('Artillery')?'t-blue':c.c.includes('Enchanter')?'t-teal':c.c.includes('Catcher')?'t-coral':c.c.includes('Marksman')?'t-green':'t-gray';
+  document.getElementById('picker-list').innerHTML = list.slice(0,80).map(c => `
+    <div class="picker-item" onclick="selectChamp('${c.n.replace(/'/g,"\\'")}')">
+      <span class="picker-item-class"><span class="tag ${tagCls(c)}" style="font-size:10px">${c.c.split('/')[1]?.trim()||c.c.split('/')[0].trim()}</span></span>
+      <span>${c.n}</span>
+      <span style="margin-left:auto"><span class="spike-chip ${PEAK_CLASS[c.p]}">${c.p}</span></span>
+    </div>`).join('');
+}
+
+function selectChamp(name) {
+  if (!pickerTarget) return;
+  const {side, idx} = pickerTarget;
+  if (side==='blue') bluePicks[idx] = name;
+  else redPicks[idx] = name;
+  document.getElementById('picker-overlay').classList.remove('open');
+  renderBuilder();
+}
+
+function removePick(side, idx) {
+  if (side==='blue') bluePicks[idx] = null;
+  else redPicks[idx] = null;
+  renderBuilder();
+}
+
+function analyzeTeam(picks) {
+  const champs = picks.filter(Boolean).map(n => CHAMPS.find(c=>c.n===n)).filter(Boolean);
+  if (!champs.length) return null;
+  const classes = {}, peaks = {};
+  let melee=0, ranged=0;
+  const PEAK_ORDER = ['Early','Early-Mid','Mid','Mid-Late','Late','Hybrid'];
+  champs.forEach(c => {
+    c.c.split(',').forEach(cl => { const k=cl.trim(); classes[k]=(classes[k]||0)+1; });
+    peaks[c.p] = (peaks[c.p]||0)+1;
+    const isRanged = c.c.includes('Marksman')||c.c.includes('Artillery')||c.c.includes('Enchanter')||c.c.includes('Controller');
+    if(isRanged) ranged++; else melee++;
+  });
+  const topPeak = Object.entries(peaks).sort((a,b)=>b[1]-a[1])[0]?.[0]||'Mid';
+  const themes = [];
+  const classStr = champs.map(c=>c.c).join(' ');
+  if(classStr.includes('Vanguard')||classStr.includes('Diver')) themes.push('Engage');
+  if(classStr.includes('Assassin')) themes.push('Pick');
+  if(classStr.includes('Artillery')||classStr.includes('Marksman')&&melee<2) themes.push('Poke');
+  if(classStr.includes('Enchanter')&&champs.some(c=>c.c.includes('Marksman'))) themes.push('Protect carry');
+  if(classStr.includes('Skirmisher')||classStr.includes('Juggernaut')) themes.push('Bruiser/split');
+  if(classStr.includes('Battlemage')) themes.push('Sustained AoE');
+  const winCons = [];
+  if(classStr.includes('Vanguard')) winCons.push('Force teamfights with hard engage');
+  if(classStr.includes('Assassin')) winCons.push('Pick isolated targets before 5v5s');
+  if(classStr.includes('Artillery')||classStr.includes('Catcher')) winCons.push('Poke/siege to objective control');
+  if(classStr.includes('Enchanter')&&champs.some(c=>c.c.includes('Marksman'))) winCons.push('Protect carry through late game');
+  if(classStr.includes('Skirmisher')) winCons.push('Split push and create map pressure');
+  if(!winCons.length) winCons.push('Balanced — adapt to game state');
+  return { champs, classes, peaks, topPeak, melee, ranged, themes, winCons };
+}
+
+function renderTeamAnalysis(side) {
+  const picks = side==='blue' ? bluePicks : redPicks;
+  const analysis = analyzeTeam(picks);
+  const color = side==='blue' ? 'var(--blue)' : 'var(--red)';
+  const panel = document.getElementById(side+'-analysis');
+  if (!analysis) { panel.innerHTML = `<div style="font-size:12px;color:var(--text3)">Add ${side} team picks to see analysis</div>`; return; }
+
+  const classHtml = Object.entries(analysis.classes).map(([k,v]) => {
+    const tag = k.includes('Vanguard')||k.includes('Warden')?'t-red':k.includes('Fighter')||k.includes('Juggernaut')||k.includes('Diver')?'t-amber':k.includes('Assassin')||k.includes('Skirmisher')?'t-purple':k.includes('Mages')||k.includes('Battlemage')||k.includes('Artillery')?'t-blue':k.includes('Enchanter')?'t-teal':k.includes('Catcher')?'t-coral':k.includes('Marksman')?'t-green':'t-gray';
+    return `<span class="tag ${tag}">${k.split('/')[1]?.trim()||k}${v>1?` ×${v}`:''}</span>`;
+  }).join('');
+
+  const peakOrder = ['Early','Early-Mid','Mid','Mid-Late','Late','Hybrid'];
+  const peakColors = {'Early':'#fb923c','Early-Mid':'#fbbf24','Mid':'#7bb8ff','Mid-Late':'#c084fc','Late':'#6ee7b7','Hybrid':'#94a3b8'};
+  const maxPeak = Math.max(...Object.values(analysis.peaks));
+  const peakBars = peakOrder.filter(p=>analysis.peaks[p]).map(p=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <span class="spike-chip ${PEAK_CLASS[p]}" style="min-width:70px">${p}</span>
+      <div class="bar-wrap" style="flex:1"><div class="bar-fill" style="width:${Math.round((analysis.peaks[p]||0)/maxPeak*100)}%;background:${peakColors[p]}44"></div></div>
+      <span style="font-size:11px;color:var(--text3)">${analysis.peaks[p]}</span>
+    </div>`).join('');
+
+  const totalR = analysis.melee + analysis.ranged;
+  panel.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:${color};margin-bottom:14px">${analysis.champs.length}/5 PICKS</div>
+    <div class="analysis-section">
+      <div class="section-label">Composition</div>
+      <div style="flex-wrap:wrap;display:flex;gap:3px">${classHtml}</div>
+    </div>
+    <div class="analysis-section">
+      <div class="section-label">Range profile</div>
+      <div class="bar-wrap" style="height:12px;margin-bottom:4px">
+        <div style="height:100%;display:flex">
+          <div style="width:${Math.round(analysis.melee/totalR*100)}%;background:#e05a3a88;border-radius:4px 0 0 4px"></div>
+          <div style="width:${Math.round(analysis.ranged/totalR*100)}%;background:#4a9eff88;border-radius:0 4px 4px 0"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px">
+        <span style="color:#fb923c">${analysis.melee} melee</span>
+        <span style="color:#7bb8ff">${analysis.ranged} ranged</span>
+      </div>
+    </div>
+    <div class="analysis-section">
+      <div class="section-label">Power timing</div>
+      ${peakBars}
+    </div>
+    <div class="analysis-section">
+      <div class="section-label">Win conditions</div>
+      ${analysis.winCons.map(w=>`<div style="font-size:12px;color:var(--text2);margin-bottom:3px">› ${w}</div>`).join('')}
+    </div>`;
+}
+
+function renderMatchupInsights() {
+  const blueA = analyzeTeam(bluePicks);
+  const redA  = analyzeTeam(redPicks);
+  const panel = document.getElementById('matchup-insights-panel');
+  const list  = document.getElementById('matchup-insights-list');
+  if (!blueA || !redA) { panel.style.display='none'; return; }
+  panel.style.display='block';
+  const insights = [];
+
+  const blueRangeRatio = blueA.ranged / (blueA.champs.length||1);
+  const redRangeRatio  = redA.ranged  / (redA.champs.length||1);
+  if (blueRangeRatio > redRangeRatio + 0.3) insights.push({team:'blue',text:'Blue has range advantage — superior poke and kiting in lane and fights.'});
+  else if (redRangeRatio > blueRangeRatio + 0.3) insights.push({team:'red',text:'Red has range advantage — superior poke and kiting in lane and fights.'});
+
+  const blueClasses = blueA.champs.map(c=>c.c).join(' ');
+  const redClasses  = redA.champs.map(c=>c.c).join(' ');
+  if (blueClasses.includes('Vanguard') && redClasses.includes('Artillery')) insights.push({team:'blue',text:'Blue engage vs. Red poke: Blue must flash/ult through poke to close; Red must respect all-in threat.'});
+  if (redClasses.includes('Vanguard') && blueClasses.includes('Artillery')) insights.push({team:'red',text:'Red engage vs. Blue poke: Red must flash/ult through poke to close; Blue must respect all-in threat.'});
+  if (blueClasses.includes('Enchanter') && redClasses.includes('Assassin')) insights.push({team:'blue',text:'Blue has enchanters vs. Red assassins. Blue win-con: keep carry alive. Red win-con: isolate and bypass.'});
+  if (redClasses.includes('Enchanter') && blueClasses.includes('Assassin')) insights.push({team:'red',text:'Red has enchanters vs. Blue assassins. Red win-con: keep carry alive. Blue win-con: isolate and bypass.'});
+
+  const PEAK_ORDER_NUM = {'Early':1,'Early-Mid':2,'Mid':3,'Mid-Late':4,'Late':5,'Hybrid':3};
+  const blueScore = blueA.champs.reduce((s,c)=>s+PEAK_ORDER_NUM[c.p],0)/blueA.champs.length;
+  const redScore  = redA.champs.reduce((s,c)=>s+PEAK_ORDER_NUM[c.p],0)/redA.champs.length;
+  if (blueScore < redScore - 0.7) insights.push({team:'blue',text:`Blue spikes earlier (avg ~${blueA.topPeak}): must snowball objectives before Red's ${redA.topPeak} carries come online.`});
+  else if (redScore < blueScore - 0.7) insights.push({team:'red',text:`Red spikes earlier (avg ~${redA.topPeak}): must snowball objectives before Blue's ${blueA.topPeak} carries come online.`});
+
+  if (blueClasses.includes('Battlemage')||blueClasses.includes('Warwick')||blueClasses.includes('Vladimir')) {
+    insights.push({team:'red',text:'Red should prioritize Grievous Wounds against Blue sustain/drain champions.'});
+  }
+  if (redClasses.includes('Battlemage')||redClasses.includes('Warwick')||redClasses.includes('Vladimir')) {
+    insights.push({team:'blue',text:'Blue should prioritize Grievous Wounds against Red sustain/drain champions.'});
+  }
+  if (!insights.length) insights.push({team:'neutral',text:'No strong matchup advantages detected — even draft. Game likely decided by execution.'});
+
+  list.innerHTML = insights.map(ins => {
+    const col = ins.team==='blue'?'var(--blue)':ins.team==='red'?'var(--red)':'var(--gold)';
+    return `<div class="insight-item" style="background:${col}0f;border:1px solid ${col}22">
+      <div class="insight-dot" style="background:${col}"></div>
+      <div>${ins.team!=='neutral'?`<strong style="color:${col};text-transform:uppercase">${ins.team}:</strong> `:''}${ins.text}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ ROSTER ═══════════════
+let roleFilter='All', peakFilter='All', selectedChamp=null;
+function toggleFilter(btn, type, val) {
+  const group = btn.closest('.filter-row');
+  group.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(type==='role') roleFilter=val; else peakFilter=val;
+  renderRoster();
+}
+function filterRoster() { renderRoster(); }
+function getFiltered() {
+  const q = document.getElementById('search-input')?.value?.toLowerCase()||'';
+  return CHAMPS.filter(c => {
+    const mQ = !q||c.n.toLowerCase().includes(q)||c.c.toLowerCase().includes(q)||c.r.toLowerCase().includes(q);
+    const mR = roleFilter==='All'||c.r.toLowerCase().includes(roleFilter.toLowerCase());
+    const mP = peakFilter==='All'||c.p===peakFilter;
+    return mQ&&mR&&mP;
+  });
+}
+function renderRoster() {
+  const filtered = getFiltered();
+  const rc = document.getElementById('result-count');
+  if(rc) rc.textContent = filtered.length + ' champions';
+  const grid = document.getElementById('champ-grid');
+  if(!grid) return;
+  grid.innerHTML = filtered.map(c => {
+    const tag = c.c.includes('Vanguard')||c.c.includes('Warden')?'t-red':c.c.includes('Fighter')||c.c.includes('Juggernaut')||c.c.includes('Diver')?'t-amber':c.c.includes('Assassin')||c.c.includes('Skirmisher')?'t-purple':c.c.includes('Mages')||c.c.includes('Battlemage')||c.c.includes('Artillery')?'t-blue':c.c.includes('Enchanter')?'t-teal':c.c.includes('Catcher')?'t-coral':c.c.includes('Marksman')?'t-green':'t-gray';
+    return `<div class="champ-card${selectedChamp===c.n?' selected':''}" onclick="showDetail('${c.n.replace(/'/g,"\\'")}')">
+      <div class="champ-name">${c.n}</div>
+      <div class="champ-meta"><span class="tag ${tag}" style="font-size:10px;padding:1px 5px">${c.c.split('/')[1]?.trim()||c.c.split('/')[0].trim()}</span> <span class="spike-chip ${PEAK_CLASS[c.p]}">${c.p}</span></div>
+    </div>`;
+  }).join('');
+}
+function showDetail(name) {
+  const c = CHAMPS.find(x=>x.n===name);
+  if(!c) return;
+  selectedChamp = name;
+  const tag = c.c.includes('Vanguard')||c.c.includes('Warden')?'t-red':c.c.includes('Fighter')||c.c.includes('Juggernaut')||c.c.includes('Diver')?'t-amber':c.c.includes('Assassin')||c.c.includes('Skirmisher')?'t-purple':c.c.includes('Mages')||c.c.includes('Battlemage')||c.c.includes('Artillery')?'t-blue':c.c.includes('Enchanter')?'t-teal':c.c.includes('Catcher')?'t-coral':c.c.includes('Marksman')?'t-green':'t-gray';
+  document.getElementById('d-name').textContent = c.n;
+  document.getElementById('d-meta').textContent = c.r + ' · ' + c.c;
+  document.getElementById('d-tags').innerHTML = `<span class="spike-chip ${PEAK_CLASS[c.p]}">${c.p}</span> ` +
+    c.c.split(',').map(cls=>`<span class="tag ${tag}">${cls.trim()}</span>`).join('');
+  document.getElementById('d-why').textContent = c.w;
+  document.getElementById('d-gameplan').textContent = c.g;
+  const detail = document.getElementById('champ-detail');
+  detail.classList.add('visible');
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+  renderRoster();
+}
+function closeDetail() {
+  selectedChamp = null;
+  document.getElementById('champ-detail').classList.remove('visible');
+  renderRoster();
+}
+
+// ═══════════════ INIT ═══════════════
+renderTimingBars();
+renderRoster();
+</script>
+</body>
+</html>
