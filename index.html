@@ -162,6 +162,23 @@ input[type=text]:focus { border-color: rgba(201,162,39,.5); }
 .t-bar-label { width: 88px; flex-shrink: 0; }
 .t-bar-bg { flex: 1; background: var(--bg3); border-radius: 4px; height: 24px; overflow: hidden; }
 .t-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; transition: width .4s; }
+
+/* PRIO PREDICTOR */
+.prio-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+.prio-row { display: grid; grid-template-columns: 1fr 36px 1fr; gap: 0; margin-bottom: 8px; align-items: center; }
+.prio-lane-cell { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.prio-lane-cell.winner { border-color: rgba(201,162,39,.5); background: rgba(201,162,39,.07); }
+.prio-lane-cell.loser  { opacity: 0.55; }
+.prio-lane-cell.even   { border-color: var(--border2); }
+.prio-champ-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.prio-class-tag  { font-size: 10px; color: var(--text3); }
+.prio-verdict    { font-size: 11px; margin-top: 5px; line-height: 1.5; }
+.prio-divider    { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.prio-lane-icon  { font-size: 14px; }
+.prio-vs-label   { font-size: 9px; color: var(--text3); font-weight: 700; letter-spacing:.05em; }
+.prio-score-bar  { height: 6px; border-radius: 3px; margin-top: 4px; }
+.prio-summary-row { display: flex; gap: 8px; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; line-height: 1.5; align-items: flex-start; }
+.prio-map-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
 </style>
 </head>
 <body>
@@ -320,6 +337,20 @@ input[type=text]:focus { border-color: rgba(201,162,39,.5); }
     <div class="analysis-panel" id="red-analysis"><div style="font-size:12px;color:var(--text3)">Add red team picks to see analysis</div></div>
   </div>
 
+
+  <div id="prio-panel" style="display:none;margin-top:20px">
+    <div class="section-label">Lane priority predictor</div>
+    <div class="prio-map-wrap">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:11px;font-weight:700;letter-spacing:.1em">
+        <span style="color:var(--blue)">● BLUE TEAM</span>
+        <span style="color:var(--text3)">LANE PRIO</span>
+        <span style="color:var(--red)">RED TEAM ●</span>
+      </div>
+      <div id="prio-lanes"></div>
+    </div>
+    <div class="section-label" style="margin-top:4px">Map implications</div>
+    <div id="prio-map-notes"></div>
+  </div>
   <div id="matchup-insights-panel" style="display:none">
     <div class="section-label">Matchup insights</div>
     <div id="matchup-insights-list"></div>
@@ -756,28 +787,108 @@ function renderBuilder() {
   renderTeamSlots('blue'); renderTeamSlots('red');
   renderTeamAnalysis('blue'); renderTeamAnalysis('red');
   renderMatchupInsights();
+  renderPrioPredictor();
 }
 
 function renderTeamSlots(side) {
   const picks = side==='blue' ? bluePicks : redPicks;
   const color = side==='blue' ? 'var(--blue)' : 'var(--red)';
   const wrap = document.getElementById(side+'-slots');
-  wrap.innerHTML = picks.map((p, i) => {
+  const hasEmpty = picks.some(p => p === null);
+  const addBtn = hasEmpty
+    ? `<div class="team-slot" style="border:1px dashed ${color}55;margin-bottom:8px;cursor:pointer;background:${color}06" onclick="openPickerSmart('${side}')">
+        <div class="slot-num" style="background:${color}22;color:${color};font-size:16px;font-weight:300">+</div>
+        <div class="slot-name" style="color:var(--text3)">Add champion</div>
+       </div>`
+    : '';
+  const LANE_LABELS = ['Top','Jungle','Mid','Bot','Support'];
+  const slotRows = picks.map((p, i) => {
     const champ = p ? CHAMPS.find(c=>c.n===p) : null;
-    return `<div class="team-slot" style="border-color:${champ?color:'var(--border)'}" onclick="openPicker('${side}',${i})">
-      <div class="slot-num" style="background:${color}22;color:${color}">${i+1}</div>
-      ${champ
-        ? `<div style="flex:1"><div class="slot-name">${champ.n}</div><div class="slot-meta">${champ.r} · ${champ.c.split(',')[0]} · <span class="spike-chip ${PEAK_CLASS[champ.p]}">${champ.p}</span></div></div>
-           <button class="slot-remove" onclick="event.stopPropagation();removePick('${side}',${i})">×</button>`
-        : `<div class="slot-name" style="color:var(--text3)">+ Select champion</div>`}
+    if (!champ) return '';
+    return `<div class="team-slot drag-slot" draggable="true"
+        data-side="${side}" data-idx="${i}"
+        style="border-color:${color}44;margin-bottom:6px;cursor:grab"
+        onclick="openPickerReplace('${side}',${i})"
+        ondragstart="dragStart(event,'${side}',${i})"
+        ondragover="dragOver(event)"
+        ondragleave="dragLeave(event)"
+        ondrop="dragDrop(event,'${side}',${i})"
+        ondragend="dragEnd(event)">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:28px;flex-shrink:0;gap:1px;opacity:0.35;cursor:grab">
+        <div style="width:14px;height:2px;background:currentColor;border-radius:1px"></div>
+        <div style="width:14px;height:2px;background:currentColor;border-radius:1px"></div>
+        <div style="width:14px;height:2px;background:currentColor;border-radius:1px"></div>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:9px;font-weight:700;letter-spacing:.08em;color:${color};opacity:0.7;min-width:36px">${LANE_LABELS[i]}</span>
+          <div class="slot-name">${champ.n}</div>
+        </div>
+        <div class="slot-meta">${champ.c.split(',')[0].trim()} · <span class="spike-chip ${PEAK_CLASS[champ.p]}">${champ.p}</span></div>
+      </div>
+      <button class="slot-remove" onclick="event.stopPropagation();removePick('${side}',${i})">×</button>
     </div>`;
   }).join('');
+  wrap.innerHTML = addBtn + slotRows;
+}
+
+// ── DRAG AND DROP ──────────────────────────────────────────────────────────────
+let dragSrc = null;
+
+function dragStart(e, side, idx) {
+  dragSrc = {side, idx};
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '0.4';
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.style.borderColor = 'var(--gold)';
+  e.currentTarget.style.background = 'rgba(201,162,39,0.08)';
+}
+
+function dragLeave(e) {
+  e.currentTarget.style.borderColor = '';
+  e.currentTarget.style.background = '';
+}
+
+function dragDrop(e, side, toIdx) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  e.currentTarget.style.background = '';
+  if (!dragSrc || dragSrc.side !== side || dragSrc.idx === toIdx) return;
+  const picks = side === 'blue' ? bluePicks : redPicks;
+  // Swap the two slots
+  const tmp = picks[dragSrc.idx];
+  picks[dragSrc.idx] = picks[toIdx];
+  picks[toIdx] = tmp;
+  dragSrc = null;
+  renderBuilder();
+  renderPrioPredictor();
+}
+
+function dragEnd(e) {
+  e.currentTarget.style.opacity = '';
+  e.currentTarget.style.borderColor = '';
+  dragSrc = null;
 }
 
 const PEAK_CLASS = {'Early':'sc-early','Early-Mid':'sc-earlymid','Mid':'sc-mid','Mid-Late':'sc-midlate','Late':'sc-late','Hybrid':'sc-hybrid'};
 
-function openPicker(side, idx) {
-  pickerTarget = {side, idx};
+// Smart add — always infers lane from champion picked
+function openPickerSmart(side) {
+  pickerTarget = {side, idx: -1, smartMode: true};
+  pickerQuery = '';
+  document.getElementById('picker-search').value = '';
+  document.getElementById('picker-overlay').classList.add('open');
+  renderPickerList();
+  setTimeout(()=>document.getElementById('picker-search').focus(), 50);
+}
+
+// Explicit replace — user clicked a filled slot to swap it
+function openPickerReplace(side, idx) {
+  pickerTarget = {side, idx, smartMode: false};
   pickerQuery = '';
   document.getElementById('picker-search').value = '';
   document.getElementById('picker-overlay').classList.add('open');
@@ -806,13 +917,45 @@ function renderPickerList() {
     </div>`).join('');
 }
 
+function inferSlot(champ) {
+  const r = champ.r.toLowerCase();
+  const c = champ.c.toLowerCase();
+  if (r.startsWith('support') || (r.includes('support') && !r.includes('mid') && !r.includes('top') && !r.includes('adc'))) return 4;
+  if (r.startsWith('jungle') || (r.includes('jungle') && !r.includes('top') && !r.includes('mid'))) return 1;
+  if (r.startsWith('adc') || r.includes('/adc') || r.startsWith('bot')) return 3;
+  if (r.startsWith('top') && !r.includes('mid') && !r.includes('jungle')) return 0;
+  if (r.startsWith('mid')) return 2;
+  if (c.includes('marksman')) return 3;
+  if (c.includes('enchanter') || c.includes('catcher') || c.includes('warden')) return 4;
+  if (c.includes('vanguard')) return r.includes('support') ? 4 : 0;
+  return 2;
+}
+
 function selectChamp(name) {
   if (!pickerTarget) return;
-  const {side, idx} = pickerTarget;
-  if (side==='blue') bluePicks[idx] = name;
+  const {side, smartMode} = pickerTarget;
+  let {idx} = pickerTarget;
+  const picks = side === 'blue' ? bluePicks : redPicks;
+  const champ = CHAMPS.find(c => c.n === name);
+
+  if (smartMode) {
+    // Infer the right lane slot for this champion
+    const preferred = inferSlot(champ);
+    if (picks[preferred] === null) {
+      idx = preferred;                          // perfect — natural slot is free
+    } else {
+      // Natural slot taken — find next empty in [0,1,2,3,4]
+      const empty = [0,1,2,3,4].find(i => picks[i] === null);
+      idx = empty !== undefined ? empty : 0;
+    }
+  }
+  // smartMode===false: explicit replace, keep idx as-is
+
+  if (side === 'blue') bluePicks[idx] = name;
   else redPicks[idx] = name;
   document.getElementById('picker-overlay').classList.remove('open');
   renderBuilder();
+  renderPrioPredictor();
 }
 
 function removePick(side, idx) {
@@ -1001,6 +1144,225 @@ function closeDetail() {
   selectedChamp = null;
   document.getElementById('champ-detail').classList.remove('visible');
   renderRoster();
+}
+
+
+// ═══════════════ PRIO PREDICTOR ═══════════════
+const LANE_SLOTS = [
+  { label: 'Top',     icon: '⚔️',  blueIdx: 0, redIdx: 0 },
+  { label: 'Jungle',  icon: '🌲',  blueIdx: 1, redIdx: 1 },
+  { label: 'Mid',     icon: '🔮',  blueIdx: 2, redIdx: 2 },
+  { label: 'Bot',     icon: '🏹',  blueIdx: 3, redIdx: 3 },
+  { label: 'Support', icon: '🛡️',  blueIdx: 4, redIdx: 4 },
+];
+
+// Score a champion for lane priority (higher = more prio)
+// Returns { score: 0-10, tags: [], roamThreat: bool, killThreat: bool }
+function scorePrio(champ, laneLabel) {
+  if (!champ) return { score: 5, tags: ['no pick'], roam: false, kill: false };
+  const c = champ.c; // class string
+  const p = champ.p; // peak
+  const r = champ.r; // role string
+
+  let score = 5;
+  const tags = [];
+
+  // ── RANGE ──
+  const isRanged = c.includes('Marksman') || c.includes('Artillery') ||
+                   c.includes('Enchanter') || c.includes('Catcher') ||
+                   (r.includes('ADC')) ||
+                   ['Mages / Burst','Mages / Battlemage'].some(x => c.includes(x));
+  if (isRanged && laneLabel !== 'Jungle') { score += 1; tags.push('ranged'); }
+
+  // ── EARLY SPIKE ──
+  if (p === 'Early')      { score += 2.5; tags.push('early spike'); }
+  else if (p === 'Early-Mid') { score += 1.5; tags.push('early-mid spike'); }
+  else if (p === 'Mid')   { score += 0.5; }
+  else if (p === 'Mid-Late' || p === 'Late') { score -= 1; tags.push('scales late'); }
+
+  // ── KILL THREAT ──
+  const hasKillThreat = c.includes('Assassin') || c.includes('Juggernaut') ||
+                        c.includes('Diver') || c.includes('Catcher') ||
+                        ['Renekton','Darius','Draven','Irelia','Riven','Akali',
+                         'Zed','LeBlanc','Qiyana','Talon','Pantheon','Sett','Volibear',
+                         'Jayce','Annie','Leona','Nautilus','Blitzcrank','Thresh','Pyke',
+                         'Ambessa'].includes(champ.n);
+  if (hasKillThreat) { score += 1.5; tags.push('kill threat'); }
+
+  // ── ROAM / MAP PRESENCE ──
+  const hasRoam = ['Twisted Fate','Pantheon','Galio','Shen','Taliyah','Aurelion Sol',
+                   'Talon','Qiyana','Ahri','Sylas','Nocturne','Hecarim','Rammus',
+                   'Bard','Pyke','Thresh','Alistar','Rakan','Leona',"Nunu & Willump"].includes(champ.n);
+  if (hasRoam && laneLabel !== 'Jungle') { score += 1; tags.push('roam threat'); }
+
+  // ── JUNGLE SPECIFIC ──
+  if (laneLabel === 'Jungle') {
+    // Reset score for jungle — it's about clear speed + early gank
+    score = 5;
+    tags.length = 0;
+    if (p === 'Early')      { score += 2.5; tags.push('early ganker'); }
+    else if (p === 'Early-Mid') { score += 1.5; tags.push('early pressure'); }
+    else if (p === 'Late' || p === 'Mid-Late') { score -= 1; tags.push('farm jungler'); }
+    const isAggressiveJungler = c.includes('Diver') || c.includes('Assassin') ||
+      ['Lee Sin','Vi','Jarvan IV','Xin Zhao','Hecarim','Nidalee','Elise',"Rek'Sai",
+       'Warwick','Pantheon','Volibear','Diana','Nocturne','Briar','Wukong'].includes(champ.n);
+    if (isAggressiveJungler) { score += 1.5; tags.push('invade / dive'); }
+    const isFarmJungler = ['Karthus','Master Yi','Kindred',"Bel'Veth",'Shyvana',
+       'Lillia','Fiddlesticks','Evelynn','Twitch'].includes(champ.n);
+    if (isFarmJungler) { score -= 1; tags.push('power farm'); }
+    // Gank utility
+    const hasCC = c.includes('Vanguard') || c.includes('Catcher') ||
+      ['Amumu','Sejuani','Zac','Maokai','Rammus','Nautilus','Vi','Jarvan IV',
+       'Rell','Gragas','Wukong','Hecarim','Elise','Diana',"Rek'Sai"].includes(champ.n);
+    if (hasCC) { score += 1; tags.push('CC ganks'); }
+  }
+
+  // ── PUSH / WAVE ──
+  const hasWaveclear = c.includes('Mages') || c.includes('Marksman') ||
+    ['Ziggs','Heimerdinger','Viktor','Cassiopeia','Morgana','Karma','Sivir','Seraphine',
+     'Yorick','Illaoi','Malzahar','Azir','Anivia','Rumble','Taliyah','Lissandra'].includes(champ.n);
+  if (hasWaveclear && laneLabel !== 'Jungle') { score += 0.5; tags.push('waveclear'); }
+
+  // ── SUPPORT SPECIFIC ──
+  if (laneLabel === 'Support') {
+    score = 5;
+    tags.length = 0;
+    if (p === 'Early' || p === 'Early-Mid') { score += 2; tags.push('lane dominance'); }
+    if (c.includes('Vanguard') || c.includes('Catcher')) { score += 2; tags.push('engage / hook'); }
+    else if (c.includes('Enchanter')) { score -= 1; tags.push('passive / scale'); }
+    if (hasRoam) { score += 1; tags.push('roam threat'); }
+    const isAggSupport = ['Leona','Nautilus','Thresh','Blitzcrank','Alistar','Rakan',
+      'Rell','Pyke','Nami','Senna','Karma','Brand','Zyra','Neeko'].includes(champ.n);
+    if (isAggSupport) { score += 1; tags.push('lane aggression'); }
+  }
+
+  score = Math.max(1, Math.min(10, score));
+  const roam = hasRoam || (laneLabel === 'Jungle' && tags.includes('early ganker'));
+  const kill = hasKillThreat || tags.includes('invade / dive') || tags.includes('engage / hook');
+  return { score, tags, roam, kill };
+}
+
+function prioVerdict(blueScore, redScore, lane) {
+  const diff = blueScore - redScore;
+  if (Math.abs(diff) < 1) return { winner: 'even', label: 'Even', tip: 'Both sides should play cautiously and not force the lane.' };
+  const winner = diff > 0 ? 'blue' : 'red';
+  const mag = Math.abs(diff);
+  let label, tip;
+  if (lane.label === 'Jungle') {
+    if (mag >= 3)    { label = 'Heavy prio'; tip = winner==='blue' ? 'Blue jungler should invade and contest all early objectives. Red jungler needs to track and avoid.' : 'Red jungler should invade and contest all early objectives. Blue jungler needs to track and avoid.'; }
+    else if (mag >= 1.5) { label = 'Prio';  tip = winner==='blue' ? 'Blue jungler has early advantage — look for invades and early skirmishes.' : 'Red jungler has early advantage — look for invades and early skirmishes.'; }
+    else             { label = 'Slight prio'; tip = 'Slight jungle edge — can look for selective invades on the right side.'; }
+  } else {
+    if (mag >= 3)    { label = 'Heavy prio'; tip = `${winner==='blue'?'Blue':'Red'} wins this lane hard. Should roam and create pressure on the map freely.`; }
+    else if (mag >= 1.5) { label = 'Prio';   tip = `${winner==='blue'?'Blue':'Red'} has lane advantage. Should look to push, shove, and roam after waves.`; }
+    else             { label = 'Slight prio'; tip = `${winner==='blue'?'Blue':'Red'} has a small edge — play for small advantages and avoid feeding the lane.`; }
+  }
+  return { winner, label, tip };
+}
+
+function renderPrioPredictor() {
+  const allBlue = bluePicks.filter(Boolean);
+  const allRed  = redPicks.filter(Boolean);
+  const panel = document.getElementById('prio-panel');
+  if (allBlue.length === 0 && allRed.length === 0) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+
+  const laneWrap = document.getElementById('prio-lanes');
+  const notesWrap = document.getElementById('prio-map-notes');
+
+  const mapNotes = [];
+  let blueRoamLanes = [], redRoamLanes = [];
+  let blueKillLanes = [], redKillLanes = [];
+  let bluePrioCount = 0, redPrioCount = 0;
+
+  const rows = LANE_SLOTS.map((lane, li) => {
+    const blueChamp = bluePicks[li] ? CHAMPS.find(c => c.n === bluePicks[li]) : null;
+    const redChamp  = redPicks[li]  ? CHAMPS.find(c => c.n === redPicks[li])  : null;
+    const blueP = scorePrio(blueChamp, lane.label);
+    const redP  = scorePrio(redChamp,  lane.label);
+    const v = prioVerdict(blueP.score, redP.score, lane);
+
+    if (v.winner === 'blue') { bluePrioCount++; blueKillLanes.push(lane.label); if (blueP.roam) blueRoamLanes.push(lane.label); }
+    if (v.winner === 'red')  { redPrioCount++;  redKillLanes.push(lane.label);  if (redP.roam)  redRoamLanes.push(lane.label); }
+
+    const blueWin  = v.winner === 'blue';
+    const redWin   = v.winner === 'red';
+    const isEven   = v.winner === 'even';
+    const blueBar  = Math.round((blueP.score / (blueP.score + redP.score)) * 100);
+    const redBar   = 100 - blueBar;
+
+    const blueTagStr = blueP.tags.slice(0,2).join(' · ') || '—';
+    const redTagStr  = redP.tags.slice(0,2).join(' · ')  || '—';
+
+    const winCol = v.winner === 'blue' ? 'var(--blue)' : v.winner === 'red' ? 'var(--red)' : 'var(--text3)';
+
+    return `<div class="prio-row">
+      <!-- BLUE CELL -->
+      <div class="prio-lane-cell ${blueWin?'winner':isEven?'even':'loser'}" style="${blueWin?'border-color:var(--blue);background:rgba(74,158,255,.07)':''}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div class="prio-champ-name">${blueChamp ? blueChamp.n : '—'}</div>
+          <div style="font-size:10px;font-weight:700;color:${blueWin?'var(--blue)':'var(--text3)'}">${blueWin?v.label:''}</div>
+        </div>
+        <div class="prio-class-tag">${blueTagStr}</div>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:6px">
+          <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">
+            <div style="width:${blueBar}%;height:100%;background:${blueWin?'var(--blue)':isEven?'var(--text3)':'var(--border2)'};border-radius:2px;transition:width .4s"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text3);min-width:22px">${Math.round(blueP.score*10)/10}</span>
+        </div>
+      </div>
+      <!-- DIVIDER -->
+      <div class="prio-divider">
+        <div class="prio-lane-icon">${lane.icon}</div>
+        <div class="prio-vs-label">${lane.label.toUpperCase()}</div>
+        <div style="font-size:9px;margin-top:2px;font-weight:700;color:${winCol}">${isEven?'≈':blueWin?'◀':'▶'}</div>
+      </div>
+      <!-- RED CELL -->
+      <div class="prio-lane-cell ${redWin?'winner':isEven?'even':'loser'}" style="${redWin?'border-color:var(--red);background:rgba(239,68,68,.07)':''}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:10px;font-weight:700;color:${redWin?'var(--red)':'var(--text3)'}">${redWin?v.label:''}</div>
+          <div class="prio-champ-name" style="text-align:right">${redChamp ? redChamp.n : '—'}</div>
+        </div>
+        <div class="prio-class-tag" style="text-align:right">${redTagStr}</div>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:6px">
+          <span style="font-size:10px;color:var(--text3);min-width:22px;text-align:right">${Math.round(redP.score*10)/10}</span>
+          <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">
+            <div style="width:${redBar}%;height:100%;background:${redWin?'var(--red)':isEven?'var(--text3)':'var(--border2)'};border-radius:2px;transition:width .4s;margin-left:auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  laneWrap.innerHTML = rows.join('');
+
+  // Map notes
+  const notes = [];
+  if (bluePrioCount >= 4) notes.push({ col:'var(--blue)', text:'Blue has map control across most lanes — should dictate objective timing and dragon/herald control.' });
+  else if (redPrioCount >= 4) notes.push({ col:'var(--red)',  text:'Red has map control across most lanes — should dictate objective timing and dragon/herald control.' });
+  else if (bluePrioCount > redPrioCount) notes.push({ col:'var(--blue)', text:`Blue wins ${bluePrioCount}/5 lanes — slight map edge but contested objectives.` });
+  else if (redPrioCount > bluePrioCount) notes.push({ col:'var(--red)',  text:`Red wins ${redPrioCount}/5 lanes — slight map edge but contested objectives.` });
+  else notes.push({ col:'var(--gold)', text:'Even lane distribution — map control determined by teamfight quality and jungle pathing.' });
+
+  if (blueRoamLanes.length) notes.push({ col:'var(--blue)', text:`Blue roam threats in ${blueRoamLanes.join(', ')} — Red should track and ward river to deny free tempo.` });
+  if (redRoamLanes.length)  notes.push({ col:'var(--red)',  text:`Red roam threats in ${redRoamLanes.join(', ')} — Blue should track and ward river to deny free tempo.` });
+
+  const blueJungle = bluePicks[1] ? CHAMPS.find(c => c.n === bluePicks[1]) : null;
+  const redJungle  = redPicks[1]  ? CHAMPS.find(c => c.n === redPicks[1])  : null;
+  const blueJP = scorePrio(blueJungle, 'Jungle');
+  const redJP  = scorePrio(redJungle, 'Jungle');
+  const jDiff = blueJP.score - redJP.score;
+  if (Math.abs(jDiff) >= 2) {
+    const favored = jDiff > 0 ? 'Blue' : 'Red';
+    const col = jDiff > 0 ? 'var(--blue)' : 'var(--red)';
+    notes.push({ col, text: `${favored} jungler has a meaningful early game edge — should look to invade the enemy jungle and deny camps on the weaker side.` });
+  }
+
+  notesWrap.innerHTML = notes.map(n => `
+    <div class="prio-summary-row" style="background:${n.col}0f;border:1px solid ${n.col}22">
+      <div style="width:6px;height:6px;border-radius:50%;background:${n.col};flex-shrink:0;margin-top:4px"></div>
+      <div style="color:var(--text2)">${n.text}</div>
+    </div>`).join('');
 }
 
 // ═══════════════ INIT ═══════════════
